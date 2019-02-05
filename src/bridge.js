@@ -62,6 +62,117 @@ const client = {
     return postRobot.sendToParent('getFilteredPeriodString', { veresion });
   },
 
+  // ##### FORM FUNCTIONS ##### //
+
+  getFormInitData() {
+    console.log('fm-bridge getFormInitData');
+    return postRobot.sendToParent('getFormInitData', { veresion, fragmentId })
+      .then(res => res.data)
+      .catch(err => Promise.reject(err));
+  },
+
+  getValueList(tableName) {
+    return postRobot.sendToParent('getValueList', { veresion, tableName })
+      .then(res => res.data)
+      .catch(err => Promise.reject(err));
+  },
+
+  getUsuarios() {
+    return postRobot.sendToParent('getUsuarios', { veresion })
+      .then(res => res.data)
+      .catch(err => Promise.reject(err));
+  },
+
+  getFormType(idTipoForm) {
+    return postRobot.sendToParent('getFormType', { veresion, idTipoForm })
+      .then(res => res.data)
+      .catch(err => Promise.reject(err));
+  },
+
+  collapseImagesView() {
+    return postRobot.sendToParent('collapseImagesView', { veresion })
+      .then(res => res.data)
+      .catch(err => Promise.reject(err));
+  },
+
+  expandImagesView() {
+    return postRobot.sendToParent('expandImagesView', { veresion })
+      .then(res => res.data)
+      .catch(err => Promise.reject(err));
+  },
+
+  finishActivity() {
+    return postRobot.sendToParent('finishActivity', { veresion })
+      .then(res => res.data)
+      .catch(err => Promise.reject(err));
+  },
+
+  setTitle(title) {
+    return postRobot.sendToParent('setTitle', { veresion, title })
+      .then(res => res.data)
+      .catch(err => Promise.reject(err));
+  },
+
+  saveData(data) {
+    return postRobot.sendToParent('saveData', { veresion, data })
+      .then(res => res.data)
+      .catch(err => Promise.reject(err));
+  },
+
+  openDialogPicker(eventName, date) {
+    return postRobot.sendToParent('openDialogPicker', { veresion, eventName, date })
+      .then(res => res.data)
+      .catch(err => Promise.reject(err));
+  },
+
+  openDialogPickerMaxMin(eventName, date, dateMax, dateMin) {
+    return postRobot.sendToParent('openDialogPickerMaxMin', { veresion, eventName, date, dateMax, dateMin })
+      .then(res => res.data)
+      .catch(err => Promise.reject(err));
+  },
+
+  openSignatureView(id) {
+    return postRobot.sendToParent('openSignatureView', { veresion, id })
+      .then(res => res.data)
+      .catch(err => Promise.reject(err));
+  },
+
+  showCameraImages() {
+    return postRobot.sendToParent('showCameraImages', { veresion })
+      .then(res => res.data)
+      .catch(err => Promise.reject(err));
+  },
+
+  hideCameraImages() {
+    return postRobot.sendToParent('hideCameraImages', { veresion })
+      .then(res => res.data)
+      .catch(err => Promise.reject(err));
+  },
+
+  showLoading() {
+    return postRobot.sendToParent('showLoading', { veresion })
+      .then(res => res.data)
+      .catch(err => Promise.reject(err));
+  },
+
+  hideLoading() {
+    return postRobot.sendToParent('hideLoading', { veresion })
+      .then(res => res.data)
+      .catch(err => Promise.reject(err));
+  },
+
+  showAlertDialog(id, message, btnOk) {
+    return postRobot.sendToParent('showAlertDialog', { veresion, id, message, btnOk })
+      .then(res => res.data)
+      .catch(err => Promise.reject(err));
+  },
+
+  showConfirmDialog(id, message, btnOkStr, btnKOStr) {
+    return postRobot.sendToParent('showConfirmDialog', { veresion, id, message, btnOkStr, btnKOStr })
+      .then(res => res.data)
+      .catch(err => Promise.reject(err));
+  },
+
 };
 
 export default client;

@@ -1,4 +1,4 @@
-# Force Manager Bridge
+# ForceManager Bridge
 
 Communication service for custom widgets, custom pages and custom forms.
 
@@ -6,7 +6,7 @@ Communication service for custom widgets, custom pages and custom forms.
 
 ## Installation
 
-Force Manager Bridge is available as an npm & yarn package.
+ForceManager Bridge is available as an npm & yarn package.
 
 ### As a dependency.
 

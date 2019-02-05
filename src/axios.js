@@ -58,7 +58,7 @@ instance.interceptors.response.use((response) => {
     const retryOriginalRequest = new Promise((resolve) => {
       bridge.getNewToken(res => {
         originalRequest.headers['X-Session-Key'] = res.data;
-        instance.setToken(res.data);
+        // instance.setToken(res.data);
         resolve(Axios(originalRequest));
       });
     });
