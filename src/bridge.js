@@ -119,20 +119,14 @@ const client = {
       .catch(err => Promise.reject(err));
   },
 
-  openDialogPicker(eventName, date) {
-    return postRobot.sendToParent('openDialogPicker', { veresion, eventName, date })
+  openDialogPicker(eventName, date, dateMax = '', dateMin = '') {
+    return postRobot.sendToParent('openDialogPicker', { veresion, eventName, date, dateMax, dateMin })
       .then(res => res.data)
       .catch(err => Promise.reject(err));
   },
 
-  openDialogPickerMaxMin(eventName, date, dateMax, dateMin) {
-    return postRobot.sendToParent('openDialogPickerMaxMin', { veresion, eventName, date, dateMax, dateMin })
-      .then(res => res.data)
-      .catch(err => Promise.reject(err));
-  },
-
-  openSignatureView(id) {
-    return postRobot.sendToParent('openSignatureView', { veresion, id })
+  openSignatureView(id, backgroundColor = 'white') {
+    return postRobot.sendToParent('openSignatureView', { veresion, id, backgroundColor })
       .then(res => res.data)
       .catch(err => Promise.reject(err));
   },
