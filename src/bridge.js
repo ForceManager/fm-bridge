@@ -125,8 +125,8 @@ const client = {
       .catch(err => Promise.reject(err));
   },
 
-  openSignatureView(id, backgroundColor = 'white') {
-    return postRobot.sendToParent('openSignatureView', { veresion, id, backgroundColor })
+  openSignatureView(id, background = 'white') {
+    return postRobot.sendToParent('openSignatureView', { veresion, id, background })
       .then(res => res.data)
       .catch(err => Promise.reject(err));
   },
