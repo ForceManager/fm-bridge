@@ -78,7 +78,11 @@ const client = {
   },
 
   getUsuarios() {
-    return postRobot.sendToParent('getUsuarios', { veresion })
+    return this.getRelatedEntitiesById(1, -1, 2);// TEMP SPT REVISAR
+  },
+
+  getRelatedEntitiesById(idEntityIn, id, idEntityOut) {
+    return postRobot.sendToParent('getUsuarios', { veresion, idEntityIn, id, idEntityOut })
       .then(res => res.data)
       .catch(err => Promise.reject(err));
   },
@@ -113,8 +117,8 @@ const client = {
       .catch(err => Promise.reject(err));
   },
 
-  saveData(data) {
-    return postRobot.sendToParent('saveData', { veresion, data })
+  saveData(json) {
+    return postRobot.sendToParent('saveData', { veresion, json })
       .then(res => res.data)
       .catch(err => Promise.reject(err));
   },
