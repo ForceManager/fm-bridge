@@ -5,16 +5,16 @@ const veresion = packageJson.version.substring(0, packageJson.version.indexOf('.
 const fragmentId = window.name;
 
 const client = {
-
-  getCompanyId() {
-    return postRobot.sendToParent('getCompanyId', { veresion });
+  getEntityId() {
+    return postRobot.sendToParent('getEntityId', { veresion });
   },
 
   getToken() {
     return postRobot.sendToParent('getToken', { veresion, fragmentId });
   },
 
-  getNewToken() { // TEMP
+  getNewToken() {
+    // TEMP
     return postRobot.sendToParent('getNewToken', { veresion, fragmentId });
   },
 
@@ -55,8 +55,8 @@ const client = {
   getFilteredPeriodString(period) {
     if (period !== undefined) {
       return {
-        'startDate': period.dateStart.getTime(),
-        'endDate': period.dateEnd.getTime(),
+        startDate: period.dateStart.getTime(),
+        endDate: period.dateEnd.getTime(),
       };
     }
     return postRobot.sendToParent('getFilteredPeriodString', { veresion });
@@ -66,111 +66,127 @@ const client = {
 
   getFormInitData() {
     console.log('fm-bridge getFormInitData');
-    return postRobot.sendToParent('getFormInitData', { veresion, fragmentId })
+    return postRobot
+      .sendToParent('getFormInitData', { veresion, fragmentId })
       .then(res => res.data)
       .catch(err => Promise.reject(err));
   },
 
   getValueList(tableName) {
-    return postRobot.sendToParent('getValueList', { veresion, tableName })
+    return postRobot
+      .sendToParent('getValueList', { veresion, tableName })
       .then(res => res.data)
       .catch(err => Promise.reject(err));
   },
 
   getUsuarios() {
-    return this.getRelatedEntitiesById(1, -1, 2);// TEMP SPT REVISAR
+    return this.getRelatedEntitiesById(1, -1, 2); // TEMP SPT REVISAR
   },
 
   getRelatedEntitiesById(idEntityIn, id, idEntityOut) {
-    return postRobot.sendToParent('getUsuarios', { veresion, idEntityIn, id, idEntityOut })
+    return postRobot
+      .sendToParent('getUsuarios', { veresion, idEntityIn, id, idEntityOut })
       .then(res => res.data)
       .catch(err => Promise.reject(err));
   },
 
   getFormType(idTipoForm) {
-    return postRobot.sendToParent('getFormType', { veresion, idTipoForm })
+    return postRobot
+      .sendToParent('getFormType', { veresion, idTipoForm })
       .then(res => res.data)
       .catch(err => Promise.reject(err));
   },
 
   collapseImagesView() {
-    return postRobot.sendToParent('collapseImagesView', { veresion })
+    return postRobot
+      .sendToParent('collapseImagesView', { veresion })
       .then(res => res.data)
       .catch(err => Promise.reject(err));
   },
 
   expandImagesView() {
-    return postRobot.sendToParent('expandImagesView', { veresion })
+    return postRobot
+      .sendToParent('expandImagesView', { veresion })
       .then(res => res.data)
       .catch(err => Promise.reject(err));
   },
 
   finishActivity() {
-    return postRobot.sendToParent('finishActivity', { veresion })
+    return postRobot
+      .sendToParent('finishActivity', { veresion })
       .then(res => res.data)
       .catch(err => Promise.reject(err));
   },
 
   setTitle(title) {
-    return postRobot.sendToParent('setTitle', { veresion, title })
+    return postRobot
+      .sendToParent('setTitle', { veresion, title })
       .then(res => res.data)
       .catch(err => Promise.reject(err));
   },
 
   saveData(json) {
-    return postRobot.sendToParent('saveData', { veresion, json })
+    return postRobot
+      .sendToParent('saveData', { veresion, json })
       .then(res => res.data)
       .catch(err => Promise.reject(err));
   },
 
   openDialogPicker(eventName, date, dateMax = '', dateMin = '') {
-    return postRobot.sendToParent('openDialogPicker', { veresion, eventName, date, dateMax, dateMin })
+    return postRobot
+      .sendToParent('openDialogPicker', { veresion, eventName, date, dateMax, dateMin })
       .then(res => res.data)
       .catch(err => Promise.reject(err));
   },
 
   openSignatureView(id, background = 'white') {
-    return postRobot.sendToParent('openSignatureView', { veresion, id, background })
+    return postRobot
+      .sendToParent('openSignatureView', { veresion, id, background })
       .then(res => res.data)
       .catch(err => Promise.reject(err));
   },
 
   showCameraImages() {
-    return postRobot.sendToParent('showCameraImages', { veresion })
+    return postRobot
+      .sendToParent('showCameraImages', { veresion })
       .then(res => res.data)
       .catch(err => Promise.reject(err));
   },
 
   hideCameraImages() {
-    return postRobot.sendToParent('hideCameraImages', { veresion })
+    return postRobot
+      .sendToParent('hideCameraImages', { veresion })
       .then(res => res.data)
       .catch(err => Promise.reject(err));
   },
 
   showLoading() {
-    return postRobot.sendToParent('showLoading', { veresion })
+    return postRobot
+      .sendToParent('showLoading', { veresion })
       .then(res => res.data)
       .catch(err => Promise.reject(err));
   },
 
   hideLoading() {
-    return postRobot.sendToParent('hideLoading', { veresion })
+    return postRobot
+      .sendToParent('hideLoading', { veresion })
       .then(res => res.data)
       .catch(err => Promise.reject(err));
   },
 
   showAlertDialog(id, message, btnOk) {
-    return postRobot.sendToParent('showAlertDialog', { veresion, id, message, btnOk })
+    return postRobot
+      .sendToParent('showAlertDialog', { veresion, id, message, btnOk })
       .then(res => res.data)
       .catch(err => Promise.reject(err));
   },
 
   showConfirmDialog(id, message, btnOkStr, btnKOStr) {
-    return postRobot.sendToParent('showConfirmDialog', { veresion, id, message, btnOkStr, btnKOStr })
+    return postRobot
+      .sendToParent('showConfirmDialog', { veresion, id, message, btnOkStr, btnKOStr })
       .then(res => res.data)
       .catch(err => Promise.reject(err));
   },
-
 };
 
 export default client;
