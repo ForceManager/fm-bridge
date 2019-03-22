@@ -6,6 +6,7 @@ const fragmentId = window.name;
 
 const client = {
   getEntityId() {
+    console.log('B getEntityId');
     return postRobot.sendToParent('getEntityId', { veresion });
   },
 
@@ -16,10 +17,6 @@ const client = {
   getNewToken() {
     // TEMP
     return postRobot.sendToParent('getNewToken', { veresion, fragmentId });
-  },
-
-  getUrlBase() {
-    return postRobot.sendToParent('getUrlBase', { veresion });
   },
 
   getLiteral(literal) {

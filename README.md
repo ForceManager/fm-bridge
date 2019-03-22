@@ -13,7 +13,7 @@ ForceManager Bridge is available as an npm & yarn package.
 With yarn (recommended):
 
 ```
-yarn install fm-bridge
+yarn add fm-bridge
 ```
 
 With npm:

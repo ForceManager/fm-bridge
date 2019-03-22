@@ -1,6 +1,6 @@
 {
   "name": "fm-bridge",
-  "version": "0.0.1-alpha.2",
+  "version": "0.0.1-alpha.3",
   "description": "ForceManager Bridge",
   "main": "lib/fm-bridge.js",
   "scripts": {
@@ -29,11 +29,11 @@
   "homepage": "https://github.com/ForceManager/fm-bridge",
   "devDependencies": {
     "@babel/cli": "^7.0.0-beta.51",
-    "@babel/core": "^7.0.0-beta.51",
+    "@babel/core": "^7.3.4",
     "@babel/plugin-proposal-export-default-from": "^7.2.0",
     "@babel/plugin-proposal-export-namespace-from": "^7.2.0",
-    "@babel/plugin-proposal-object-rest-spread": "^7.2.0",
-    "@babel/preset-env": "^7.0.0-beta.51",
+    "@babel/plugin-proposal-object-rest-spread": "^7.3.4",
+    "@babel/preset-env": "^7.3.4",
     "babel-eslint": "^8.0.3",
     "babel-loader": "^8.0.0-beta.4",
     "babel-plugin-add-module-exports": "^0.2.1",
@@ -41,15 +41,15 @@
     "babel-preset-stage-1": "^6.24.1",
     "babel-register": "^7.0.0-beta.3",
     "chai": "^4.1.2",
-    "eslint": "^5.0.1",
-    "eslint-loader": "^2.0.0",
+    "eslint": "^5.15.1",
+    "eslint-loader": "^2.1.2",
     "jsdom": "11.11.0",
     "jsdom-global": "3.0.2",
     "mocha": "^4.0.1",
     "uglifyjs-webpack-plugin": "^1.2.7",
-    "webpack": "^4.27.1",
-    "webpack-cli": "^3.1.2",
-    "webpack-dev-server": "^3.1.10",
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.2.3",
+    "webpack-dev-server": "^3.2.1",
     "yargs": "^10.0.3"
   },
   "dependencies": {
