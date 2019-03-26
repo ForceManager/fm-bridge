@@ -17,21 +17,19 @@ export function createInstance(config) {
 
 const instance = createInstance({
   baseURL: 'https://external.forcemanager.net/external/v1',
-  headers: {
-    'X-Session-Key': '',
-  },
 });
 
 function setConfig(config) {
   return new Promise((resolve, reject) => {
     if (!ready) {
-      bridge.getToken()
-        .then(res => {
+      bridge
+        .getToken()
+        .then((res) => {
           config.headers['Authorization'] = `Bearer ${res.data}`;
           ready = true;
           resolve(config);
         })
-        .catch(err => reject(err));
+        .catch((err) => reject(err));
     } else {
       resolve(config);
     }
@@ -39,38 +37,42 @@ function setConfig(config) {
 }
 
 instance.interceptors.request.use(
-  config => {
+  (config) => {
     return setConfig(config)
       .then(() => config)
-      .catch(err => Promise.reject(err));
+      .catch((err) => Promise.reject(err));
   },
-  error => {
+  (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 instance.interceptors.response.use(
-  response => {
+  (response) => {
+    console.log('interceptors response', response);
     return response;
   },
-  error => {
+  (error) => {
     const { config, response } = error;
     const originalRequest = config;
+    let token;
 
     if (response && response.status === 401 && response.data && response.data.code === '2') {
-      const retryOriginalRequest = new Promise(resolve => {
-        bridge.getNewToken(res => {
-          originalRequest.headers['X-Session-Key'] = res.data;
-          // instance.setToken(res.data);
+      const retryOriginalRequest = new Promise((resolve) => {
+        bridge.getNewToken((res) => {
+          token = res.data;
+          originalRequest.headers['Authorization'] = `Bearer ${token}`;
           resolve(Axios(originalRequest));
         });
       });
 
-      return retryOriginalRequest;
+      if (token) {
+        return retryOriginalRequest;
+      }
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export const axios = instance;

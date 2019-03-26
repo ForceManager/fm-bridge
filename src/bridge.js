@@ -6,7 +6,6 @@ const fragmentId = window.name;
 
 const client = {
   getEntityId() {
-    console.log('B getEntityId');
     return postRobot.sendToParent('getEntityId', { veresion });
   },
 

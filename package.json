@@ -1,6 +1,6 @@
 {
   "name": "fm-bridge",
-  "version": "0.0.1-alpha.3",
+  "version": "0.0.1-alpha.4",
   "description": "ForceManager Bridge",
   "main": "lib/fm-bridge.js",
   "scripts": {
