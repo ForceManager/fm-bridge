@@ -25,6 +25,12 @@ function setConfig(config) {
       bridge
         .getToken()
         .then((res) => {
+          if (res.data) {
+            return Promise.resolve(res);
+          }
+          return bridge.getNewToken();
+        })
+        .then((res) => {
           config.headers['Authorization'] = `Bearer ${res.data}`;
           ready = true;
           resolve(config);
@@ -49,26 +55,21 @@ instance.interceptors.request.use(
 
 instance.interceptors.response.use(
   (response) => {
-    console.log('interceptors response', response);
     return response;
   },
   (error) => {
     const { config, response } = error;
     const originalRequest = config;
-    let token;
 
     if (response && response.status === 401 && response.data && response.data.code === '2') {
       const retryOriginalRequest = new Promise((resolve) => {
         bridge.getNewToken((res) => {
-          token = res.data;
-          originalRequest.headers['Authorization'] = `Bearer ${token}`;
+          originalRequest.headers['Authorization'] = `Bearer ${res.data}`;
           resolve(Axios(originalRequest));
         });
       });
 
-      if (token) {
-        return retryOriginalRequest;
-      }
+      return retryOriginalRequest;
     }
 
     return Promise.reject(error);
