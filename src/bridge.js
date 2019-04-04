@@ -22,15 +22,7 @@ const client = {
     return postRobot.sendToParent('getLiteral', { version, literal });
   },
 
-  getCultureLang() {
-    return postRobot.sendToParent('getCultureLang', { version });
-  },
-
-  getUserLocale() {
-    return postRobot.sendToParent('getUserLocale', { version });
-  },
-
-  getUserId() {
+  getUserData() {
     return postRobot.sendToParent('getUserId', { version });
   },
 
@@ -75,7 +67,7 @@ const client = {
   },
 
   getUsuarios() {
-    return this.getRelatedEntitiesById(1, -1, 2); // TEMP SPT REVISAR
+    return this.getRelatedEntitiesById(1, -1, 2); // TODO  REVISAR
   },
 
   getRelatedEntitiesById(idEntityIn, id, idEntityOut) {
