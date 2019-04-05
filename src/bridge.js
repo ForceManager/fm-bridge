@@ -23,7 +23,7 @@ const client = {
   },
 
   getUserData() {
-    return postRobot.sendToParent('getUserId', { version });
+    return postRobot.sendToParent('getUserData', { version });
   },
 
   getFilteredUsers() {
