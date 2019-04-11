@@ -3,20 +3,14 @@ import bridge from './bridge';
 
 let ready = false;
 
-export function createInstance(config) {
-  return Axios.create({
-    timeout: 30000,
-    withCredentials: false,
-    maxContentLength: 128 * 1024 * 1024,
-    headers: {
-      'Cache-Control': 'max-age=0, no-cache, must-revalidate, proxy-revalidate',
-    },
-    ...config,
-  });
-}
-
-const instance = createInstance({
+const instance = Axios.create({
+  timeout: 30000,
+  withCredentials: false,
+  maxContentLength: 128 * 1024 * 1024,
   baseURL: 'https://external.forcemanager.net/external/v1',
+  headers: {
+    'Cache-Control': 'max-age=0, no-cache, must-revalidate, proxy-revalidate',
+  },
 });
 
 function setConfig(config) {
@@ -32,6 +26,7 @@ function setConfig(config) {
         })
         .then((res) => {
           config.headers['Authorization'] = `Bearer ${res.data}`;
+          instance.defaults.headers['Authorization'] = `Bearer ${res.data}`;
           ready = true;
           resolve(config);
         })
@@ -44,9 +39,7 @@ function setConfig(config) {
 
 instance.interceptors.request.use(
   (config) => {
-    return setConfig(config)
-      .then(() => config)
-      .catch((err) => Promise.reject(err));
+    return setConfig(config);
   },
   (error) => {
     return Promise.reject(error);
@@ -65,6 +58,7 @@ instance.interceptors.response.use(
       const retryOriginalRequest = new Promise((resolve) => {
         bridge.getNewToken((res) => {
           originalRequest.headers['Authorization'] = `Bearer ${res.data}`;
+          instance.defaults.headers['Authorization'] = `Bearer ${res.data}`;
           resolve(Axios(originalRequest));
         });
       });
