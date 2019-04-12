@@ -73,22 +73,14 @@ import { bridge, axios } from 'fm-bridge';
 
 ## Functions
 
-getCompanyId()
+* getEntityId()
+  Reruns the entity ID of the current entity (Account or Opportunity) as integer.
 
-getToken()
+* getLiteral(key)
+  Needs one argument 'key' and returns the literal for this key.
 
-getLiteral(literal)
+* getUserData()
+  Retuns an object with all the user data like: id, name, email, locale, currency, etc.).
 
-getCultureLang()
-
-getUserLocale()
-
-getUserId()
-
-getFilteredUsers()
-
-getPermissions()
-
-setDrilldown(key, value)
-
-getFilteredPeriodString()
+* getPermissions()
+  Retuns an object with all the permissions.

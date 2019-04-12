@@ -1,15 +1,7 @@
 {
   "name": "fm-bridge",
-  "version": "0.0.1-alpha.10",
+  "version": "0.0.1-beta.1",
   "description": "ForceManager Bridge",
-  "main": "lib/fm-bridge.js",
-  "scripts": {
-    "build": "webpack --env dev && webpack --env build"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:ForceManager/fm-bridge.git"
-  },
   "keywords": [
     "webpack",
     "es6",
@@ -19,11 +11,24 @@
     "umd",
     "commonjs"
   ],
-  "author": "SPT",
+  "homepage": "https://github.com/ForceManager/fm-bridge",
   "bugs": {
     "url": "https://github.com/ForceManager/fm-bridge/issues"
   },
-  "homepage": "https://github.com/ForceManager/fm-bridge",
+  "license": "MIT",
+  "author": "SPT <sergi.palau@forcemanager.net>",
+  "main": "lib/fm-bridge.js",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:ForceManager/fm-bridge.git"
+  },
+  "scripts": {
+    "build": "webpack --env dev && webpack --env build"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "post-robot": "^9.0.1"
+  },
   "devDependencies": {
     "@babel/cli": "^7.4.3",
     "@babel/core": "^7.4.3",
@@ -43,9 +48,5 @@
     "webpack": "^4.29.6",
     "webpack-cli": "^3.3.0",
     "yargs": "^10.0.3"
-  },
-  "dependencies": {
-    "axios": "^0.18.0",
-    "post-robot": "^9.0.1"
   }
 }

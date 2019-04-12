@@ -3,15 +3,16 @@ const env = require('yargs').argv.env;
 const pkg = require('./package.json');
 
 let libraryName = pkg.name;
+let version = pkg.version;
 
 let outputFile, mode;
 
 if (env === 'build') {
   mode = 'production';
-  outputFile = libraryName + '.min.js';
+  outputFile = `${libraryName}-${version}.min.js`;
 } else {
   mode = 'development';
-  outputFile = libraryName + '.js';
+  outputFile = `${libraryName}-${version}.js`;
 }
 
 const config = {
@@ -21,7 +22,7 @@ const config = {
   output: {
     path: path.resolve(__dirname, 'lib'),
     filename: outputFile,
-    sourceMapFilename: libraryName + '.map',
+    sourceMapFilename: `${libraryName}-${version}.map`,
     library: 'FmBridge',
     libraryTarget: 'umd',
     umdNamedDefine: true,
