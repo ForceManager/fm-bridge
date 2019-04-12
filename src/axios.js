@@ -8,6 +8,9 @@ const instance = Axios.create({
   withCredentials: false,
   maxContentLength: 128 * 1024 * 1024,
   baseURL: 'https://external.forcemanager.net/external/v1',
+  dataType: 'json',
+  contentType: 'application/json',
+  accept: '*/*',
   headers: {
     'Cache-Control': 'max-age=0, no-cache, must-revalidate, proxy-revalidate',
   },
