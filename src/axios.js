@@ -11,9 +11,9 @@ const instance = Axios.create({
   dataType: 'json',
   contentType: 'application/json',
   accept: '*/*',
-  headers: {
-    'Cache-Control': 'max-age=0, no-cache, must-revalidate, proxy-revalidate',
-  },
+  // headers: {
+  //   'Cache-Control': 'max-age=0, no-cache, must-revalidate, proxy-revalidate',
+  // },
 });
 
 function setConfig(config) {

@@ -12,7 +12,7 @@ if (env === 'build') {
   outputFile = `${libraryName}-${version}.min.js`;
 } else {
   mode = 'development';
-  outputFile = `${libraryName}-${version}.js`;
+  outputFile = `${libraryName}.js`;
 }
 
 const config = {
@@ -22,7 +22,7 @@ const config = {
   output: {
     path: path.resolve(__dirname, 'lib'),
     filename: outputFile,
-    sourceMapFilename: `${libraryName}-${version}.map`,
+    sourceMapFilename: `${libraryName}.map`,
     library: 'FmBridge',
     libraryTarget: 'umd',
     umdNamedDefine: true,
