@@ -1,5 +1,5 @@
 # Library compiled files
-lib
+lib/*.min.js
 
 # Logs
 logs

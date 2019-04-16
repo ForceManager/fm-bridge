@@ -22,7 +22,7 @@ const config = {
   output: {
     path: path.resolve(__dirname, 'lib'),
     filename: outputFile,
-    sourceMapFilename: `${libraryName}.map`,
+    // sourceMapFilename: `${libraryName}.map`,
     library: 'FmBridge',
     libraryTarget: 'umd',
     umdNamedDefine: true,
