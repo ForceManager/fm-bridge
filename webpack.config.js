@@ -18,7 +18,7 @@ if (env === 'build') {
 const config = {
   mode: mode,
   entry: path.resolve(__dirname, 'src', 'index.js'),
-  devtool: 'source-map',
+  // devtool: 'source-map',
   output: {
     path: path.resolve(__dirname, 'lib'),
     filename: outputFile,
