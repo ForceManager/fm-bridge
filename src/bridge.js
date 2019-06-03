@@ -1,5 +1,4 @@
 import postRobot from 'post-robot';
-import * as moment from 'moment';
 
 const packageJson = require('../package.json');
 const version = packageJson.version.substring(0, packageJson.version.indexOf('.'));
@@ -125,7 +124,7 @@ const client = {
 
   openDatePicker(date = '', dateMax = '', dateMin = '') {
     if (date === '') {
-      date = moment().format('DD/MM/YYYY');
+      date = '01/01/2019';
     }
     return postRobot
       .sendToParent('openDatePicker', { version, date, dateMax, dateMin })
