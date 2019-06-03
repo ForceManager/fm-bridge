@@ -125,9 +125,7 @@ const client = {
 
   openDatePicker(date = '', dateMax = '', dateMin = '') {
     if (date === '') {
-      date = moment()
-        .valueOf()
-        .toString();
+      date = moment().format('DD/MM/YYYY');
     }
     return postRobot
       .sendToParent('openDatePicker', { version, date, dateMax, dateMin })
