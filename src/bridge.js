@@ -66,20 +66,16 @@ const client = {
       .catch((err) => Promise.reject(err));
   },
 
-  getUsuarios() {
-    return this.getRelatedEntitiesById(1, -1, 2); // TODO  REVISAR
-  },
-
-  getRelatedEntitiesById(idEntityIn, id, idEntityOut) {
+  getFormType(idTipoForm) {
     return postRobot
-      .sendToParent('getUsuarios', { version, idEntityIn, id, idEntityOut })
+      .sendToParent('getFormType', { version, idTipoForm })
       .then((res) => res.data)
       .catch((err) => Promise.reject(err));
   },
 
-  getFormType(idTipoForm) {
+  getRelatedEntity(getEntity, fromEntity, id) {
     return postRobot
-      .sendToParent('getFormType', { version, idTipoForm })
+      .sendToParent('getRelatedEntity', { version, getEntity, fromEntity, id })
       .then((res) => res.data)
       .catch((err) => Promise.reject(err));
   },
@@ -112,9 +108,9 @@ const client = {
       .catch((err) => Promise.reject(err));
   },
 
-  saveData(json) {
+  saveData(formData) {
     return postRobot
-      .sendToParent('saveData', { version, json })
+      .sendToParent('saveData', { version, formData })
       .then((res) => res.data)
       .catch((err) => Promise.reject(err));
   },
