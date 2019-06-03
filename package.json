@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
+    "moment": "^2.24.0",
     "post-robot": "^9.0.1"
   },
   "devDependencies": {

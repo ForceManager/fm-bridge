@@ -1,4 +1,5 @@
 import postRobot from 'post-robot';
+import * as moment from 'moment';
 
 const packageJson = require('../package.json');
 const version = packageJson.version.substring(0, packageJson.version.indexOf('.'));
@@ -122,9 +123,14 @@ const client = {
       .catch((err) => Promise.reject(err));
   },
 
-  openDialogPicker(eventName, date, dateMax = '', dateMin = '') {
+  openDatePicker(date = '', dateMax = '', dateMin = '') {
+    if (date === '') {
+      date = moment()
+        .valueOf()
+        .toString();
+    }
     return postRobot
-      .sendToParent('openDialogPicker', { version, eventName, date, dateMax, dateMin })
+      .sendToParent('openDatePicker', { version, date, dateMax, dateMin })
       .then((res) => res.data)
       .catch((err) => Promise.reject(err));
   },
