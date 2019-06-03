@@ -80,6 +80,13 @@ const client = {
       .catch((err) => Promise.reject(err));
   },
 
+  getUsers() {
+    return postRobot
+      .sendToParent('getUsers', { version })
+      .then((res) => res.data)
+      .catch((err) => Promise.reject(err));
+  },
+
   collapseImagesView() {
     return postRobot
       .sendToParent('collapseImagesView', { version })
