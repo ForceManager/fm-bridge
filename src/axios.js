@@ -7,6 +7,7 @@ const instance = Axios.create({
   timeout: 30000,
   withCredentials: false,
   maxContentLength: 128 * 1024 * 1024,
+  // baseURL: 'https://externalpre.forcemanager.net/external/v1',
   baseURL: 'https://external.forcemanager.net/external/v1',
   dataType: 'json',
   contentType: 'application/json',
@@ -22,14 +23,14 @@ function setConfig(config) {
       bridge
         .getToken()
         .then((res) => {
-          if (res.data) {
+          if (res) {
             return Promise.resolve(res);
           }
           return bridge.getNewToken();
         })
         .then((res) => {
-          config.headers['Authorization'] = `Bearer ${res.data}`;
-          instance.defaults.headers['Authorization'] = `Bearer ${res.data}`;
+          config.headers['Authorization'] = `Bearer ${res}`;
+          instance.defaults.headers['Authorization'] = `Bearer ${res}`;
           ready = true;
           resolve(config);
         })
@@ -60,8 +61,8 @@ instance.interceptors.response.use(
     if (response && response.status === 401 && response.data && response.data.code === '2') {
       const retryOriginalRequest = new Promise((resolve) => {
         bridge.getNewToken((res) => {
-          originalRequest.headers['Authorization'] = `Bearer ${res.data}`;
-          instance.defaults.headers['Authorization'] = `Bearer ${res.data}`;
+          originalRequest.headers['Authorization'] = `Bearer ${res}`;
+          instance.defaults.headers['Authorization'] = `Bearer ${res}`;
           resolve(Axios(originalRequest));
         });
       });

@@ -4,17 +4,51 @@ const packageJson = require('../package.json');
 const version = packageJson.version.substring(0, packageJson.version.indexOf('.'));
 const guid = window.name;
 
-const client = {
-  getEntityId() {
-    return postRobot.sendToParent('getEntityId', { version });
-  },
+function getDateNow() {
+  const today = new Date();
+  const dd = today.getDate();
+  const mm = today.getMonth() + 1;
+  const yyyy = today.getFullYear();
 
+  if (dd < 10) {
+    dd = '0' + dd;
+  }
+  if (mm < 10) {
+    mm = '0' + mm;
+  }
+  return dd + '/' + mm + '/' + yyyy;
+}
+
+const client = {
   getToken() {
-    return postRobot.sendToParent('getToken', { version, guid });
+    return postRobot
+      .sendToParent('getToken', { version, guid })
+      .then((res) => res.data)
+      .catch((err) => Promise.reject(err));
   },
 
   getNewToken() {
-    return postRobot.sendToParent('getNewToken', { version, guid });
+    return postRobot
+      .sendToParent('getNewToken', { version, guid })
+      .then((res) => res.data)
+      .catch((err) => Promise.reject(err));
+  },
+
+  getContext() {
+    return postRobot
+      .sendToParent('getContext', { version })
+      .then((res) => res.data)
+      .catch((err) => Promise.reject(err));
+  },
+
+  getEntityId() {
+    console.warn('Warn: getEntityId is deprecated. Please use getContext instead.');
+    return postRobot
+      .sendToParent('getEntityId', { version })
+      .then((res) => {
+        return res.data;
+      })
+      .catch((err) => Promise.reject(err));
   },
 
   getLiteral(literal) {
@@ -22,39 +56,52 @@ const client = {
     return postRobot.sendToParent('getLiteral', { version, literal });
   },
 
-  getUserData() {
-    return postRobot.sendToParent('getUserData', { version });
+  getLiterals(literals) {
+    if (!literals) return Promise.reject({ msg: 'No literals' });
+    return postRobot.sendToParent('getLiteral', { version, literals });
   },
 
-  getFilteredUsers() {
-    return postRobot.sendToParent('getFilteredUsers', { version });
-  },
+  // getUserData() {
+  //   return postRobot.sendToParent('getUserData', { version });
+  // },
 
-  getPermissions() {
-    return postRobot.sendToParent('getPermissions', { version });
-  },
+  // ##### SFM FUNCTIONS ##### //
 
-  setDrilldown(key, value) {
-    if (!key || !value) return Promise.reject({ msg: 'No key or value' });
-    return postRobot.sendToParent('setDrilldown', { version, key, value });
-  },
+  // getFilteredUsers() {
+  //   return postRobot.sendToParent('getFilteredUsers', { version });
+  // },
 
-  getFilteredPeriodString(period) {
-    if (period !== undefined) {
-      return {
-        startDate: period.dateStart.getTime(),
-        endDate: period.dateEnd.getTime(),
-      };
-    }
-    return postRobot.sendToParent('getFilteredPeriodString', { version });
-  },
+  // getPermissions() {
+  //   return postRobot.sendToParent('getPermissions', { version });
+  // },
+
+  // setDrilldown(key, value) {
+  //   if (!key || !value) return Promise.reject({ msg: 'No key or value' });
+  //   return postRobot.sendToParent('setDrilldown', { version, key, value });
+  // },
+
+  // getFilteredPeriodString(period) {
+  //   if (period !== undefined) {
+  //     return {
+  //       startDate: period.dateStart.getTime(),
+  //       endDate: period.dateEnd.getTime(),
+  //     };
+  //   }
+  //   return postRobot.sendToParent('getFilteredPeriodString', { version });
+  // },
 
   // ##### FORM FUNCTIONS ##### //
 
   getFormInitData() {
-    console.log('fm-bridge getFormInitData');
     return postRobot
       .sendToParent('getFormInitData', { version, guid })
+      .then((res) => res.data)
+      .catch((err) => Promise.reject(err));
+  },
+
+  getFormStates() {
+    return postRobot
+      .sendToParent('getFormStates', { version, guid })
       .then((res) => res.data)
       .catch((err) => Promise.reject(err));
   },
@@ -124,7 +171,7 @@ const client = {
 
   openDatePicker(date = '', dateMax = '', dateMin = '') {
     if (date === '') {
-      date = '01/01/2019';
+      date = getDateNow();
     }
     return postRobot
       .sendToParent('openDatePicker', { version, date, dateMax, dateMin })
