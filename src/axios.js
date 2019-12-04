@@ -3,20 +3,18 @@ import bridge from './bridge';
 
 let ready = false;
 
-export function createInstance(config) {
-  return Axios.create({
-    timeout: 30000,
-    withCredentials: false,
-    maxContentLength: 128 * 1024 * 1024,
-    headers: {
-      'Cache-Control': 'max-age=0, no-cache, must-revalidate, proxy-revalidate',
-    },
-    ...config,
-  });
-}
-
-const instance = createInstance({
+const instance = Axios.create({
+  timeout: 30000,
+  withCredentials: false,
+  maxContentLength: 128 * 1024 * 1024,
+  // baseURL: 'https://externalpre.forcemanager.net/external/v1',
   baseURL: 'https://external.forcemanager.net/external/v1',
+  dataType: 'json',
+  contentType: 'application/json',
+  accept: '*/*',
+  // headers: {
+  //   'Cache-Control': 'max-age=0, no-cache, must-revalidate, proxy-revalidate',
+  // },
 });
 
 function setConfig(config) {
@@ -25,13 +23,14 @@ function setConfig(config) {
       bridge
         .getToken()
         .then((res) => {
-          if (res.data) {
+          if (res) {
             return Promise.resolve(res);
           }
           return bridge.getNewToken();
         })
         .then((res) => {
-          config.headers['Authorization'] = `Bearer ${res.data}`;
+          config.headers['Authorization'] = `Bearer ${res}`;
+          instance.defaults.headers['Authorization'] = `Bearer ${res}`;
           ready = true;
           resolve(config);
         })
@@ -44,9 +43,7 @@ function setConfig(config) {
 
 instance.interceptors.request.use(
   (config) => {
-    return setConfig(config)
-      .then(() => config)
-      .catch((err) => Promise.reject(err));
+    return setConfig(config);
   },
   (error) => {
     return Promise.reject(error);
@@ -55,7 +52,7 @@ instance.interceptors.request.use(
 
 instance.interceptors.response.use(
   (response) => {
-    return response;
+    return response.data;
   },
   (error) => {
     const { config, response } = error;
@@ -64,7 +61,8 @@ instance.interceptors.response.use(
     if (response && response.status === 401 && response.data && response.data.code === '2') {
       const retryOriginalRequest = new Promise((resolve) => {
         bridge.getNewToken((res) => {
-          originalRequest.headers['Authorization'] = `Bearer ${res.data}`;
+          originalRequest.headers['Authorization'] = `Bearer ${res}`;
+          instance.defaults.headers['Authorization'] = `Bearer ${res}`;
           resolve(Axios(originalRequest));
         });
       });

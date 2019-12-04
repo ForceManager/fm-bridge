@@ -1,6 +1,6 @@
 # ForceManager Bridge
 
-Communication service for custom widgets, custom pages and custom forms.
+Communication service for ForceManager Fragments.
 
 ![Travis](https://travis-ci.org/krasimir/webpack-library-starter.svg?branch=master)
 
@@ -25,64 +25,62 @@ npm install fm-bridge
 ### As a script.
 
 ```html
-<script type="text/javascript" src="http://localhost/fm-bridge.js"></script>;
+<script type="text/javascript" src="https://d15abo3q1yyhdy.cloudfront.net/fragments/fm-bridge.min.js"></script>;
 ```
 
+## ⭐️ Features
+
+-   Axios instance configured to make calls to ForceManager API.
+-   Set of functions to get data from ForceManager App.
 
 ## Usage
 
-### An example of using the client importing the package as a dependency.
+In the following example we can see how to get the ID of the current account using the bridge and make an API call to get the details of this account usings the axios instance.
 
-In the following example we are getting the token form the current session of ForceManager web app:
+### Example importing the package as a dependency.
 
 ```js
-import { bridge } from 'fm-bridge';
+import { bridge, axios } from 'fm-bridge';
 
- bridge.getToken()
+ bridge.getEntityId()
+  .then(res => axios.get(`/accounts/${res.data.toString()}`))
   .then(res => {
-      console.log('Token', res.data);
+    console.log('Account details:', res.data);
   })
   .catch(err => {
-      console.warn(err);
+    console.warn(err);
   });
 ```
 
-### An example of using the client importing as script.
-
-In the following example we are getting the user ID form the current session of ForceManager web app:
+### Example importing the package as script.
 
 ```html
-<script type="text/javascript" src="http://localhost/fm-bridge.js"></script>;
+<script type="text/javascript" src="https://d15abo3q1yyhdy.cloudfront.net/fragments/fm-bridge.min.js"></script>;
 
 <script>
- fmBridge.bridge.getUserId()
+ fmBridge.bridge.getEntityId()
   .then(function(res) {
-      console.log('UserId', res.data);
+    return fmBridge.axios.get(`/accounts/${res.data.toString()}`)
+  })
+  .then(function(res) {
+    console.log('Account details:', res.data);
   })
   .catch(function(err) {
-      console.warn(err);
+    console.warn(err);
   });
 </script>
 ```
 
 ## Functions
 
-getCompanyId()
+* getEntityId()
+  Reruns the entity ID of the current entity (Account or Opportunity) as integer.
 
-getToken()
+* getLiteral(key)
+  Needs one argument 'key' and returns the literal for this key.
 
-getLiteral(literal)
+* getUserData()
+  Retuns an object with all the user data like: id, name, email, locale, currency, etc.).
 
-getCultureLang()
-
-getUserLocale()
-
-getUserId()
-
-getFilteredUsers()
-
-getPermissions()
-
-setDrilldown(key, value)
-
-getFilteredPeriodString()
+* getPermissions()
+  Retuns an object with all the permissions.

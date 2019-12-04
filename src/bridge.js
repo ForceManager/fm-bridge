@@ -4,17 +4,51 @@ const packageJson = require('../package.json');
 const version = packageJson.version.substring(0, packageJson.version.indexOf('.'));
 const guid = window.name;
 
-const client = {
-  getEntityId() {
-    return postRobot.sendToParent('getEntityId', { version });
-  },
+function getDateNow() {
+  const today = new Date();
+  const dd = today.getDate();
+  const mm = today.getMonth() + 1;
+  const yyyy = today.getFullYear();
 
+  if (dd < 10) {
+    dd = '0' + dd;
+  }
+  if (mm < 10) {
+    mm = '0' + mm;
+  }
+  return dd + '/' + mm + '/' + yyyy;
+}
+
+const client = {
   getToken() {
-    return postRobot.sendToParent('getToken', { version, guid });
+    return postRobot
+      .sendToParent('getToken', { version, guid })
+      .then((res) => res.data)
+      .catch((err) => Promise.reject(err));
   },
 
   getNewToken() {
-    return postRobot.sendToParent('getNewToken', { version, guid });
+    return postRobot
+      .sendToParent('getNewToken', { version, guid })
+      .then((res) => res.data)
+      .catch((err) => Promise.reject(err));
+  },
+
+  getContext() {
+    return postRobot
+      .sendToParent('getContext', { version })
+      .then((res) => res.data)
+      .catch((err) => Promise.reject(err));
+  },
+
+  getEntityId() {
+    console.warn('Warn: getEntityId is deprecated. Please use getContext instead.');
+    return postRobot
+      .sendToParent('getEntityId', { version })
+      .then((res) => {
+        return res.data;
+      })
+      .catch((err) => Promise.reject(err));
   },
 
   getLiteral(literal) {
@@ -22,47 +56,52 @@ const client = {
     return postRobot.sendToParent('getLiteral', { version, literal });
   },
 
-  getCultureLang() {
-    return postRobot.sendToParent('getCultureLang', { version });
+  getLiterals(literals) {
+    if (!literals) return Promise.reject({ msg: 'No literals' });
+    return postRobot.sendToParent('getLiteral', { version, literals });
   },
 
-  getUserLocale() {
-    return postRobot.sendToParent('getUserLocale', { version });
-  },
+  // getUserData() {
+  //   return postRobot.sendToParent('getUserData', { version });
+  // },
 
-  getUserId() {
-    return postRobot.sendToParent('getUserId', { version });
-  },
+  // ##### SFM FUNCTIONS ##### //
 
-  getFilteredUsers() {
-    return postRobot.sendToParent('getFilteredUsers', { version });
-  },
+  // getFilteredUsers() {
+  //   return postRobot.sendToParent('getFilteredUsers', { version });
+  // },
 
-  getPermissions() {
-    return postRobot.sendToParent('getPermissions', { version });
-  },
+  // getPermissions() {
+  //   return postRobot.sendToParent('getPermissions', { version });
+  // },
 
-  setDrilldown(key, value) {
-    if (!key || !value) return Promise.reject({ msg: 'No key or value' });
-    return postRobot.sendToParent('setDrilldown', { version, key, value });
-  },
+  // setDrilldown(key, value) {
+  //   if (!key || !value) return Promise.reject({ msg: 'No key or value' });
+  //   return postRobot.sendToParent('setDrilldown', { version, key, value });
+  // },
 
-  getFilteredPeriodString(period) {
-    if (period !== undefined) {
-      return {
-        startDate: period.dateStart.getTime(),
-        endDate: period.dateEnd.getTime(),
-      };
-    }
-    return postRobot.sendToParent('getFilteredPeriodString', { version });
-  },
+  // getFilteredPeriodString(period) {
+  //   if (period !== undefined) {
+  //     return {
+  //       startDate: period.dateStart.getTime(),
+  //       endDate: period.dateEnd.getTime(),
+  //     };
+  //   }
+  //   return postRobot.sendToParent('getFilteredPeriodString', { version });
+  // },
 
   // ##### FORM FUNCTIONS ##### //
 
   getFormInitData() {
-    console.log('fm-bridge getFormInitData');
     return postRobot
       .sendToParent('getFormInitData', { version, guid })
+      .then((res) => res.data)
+      .catch((err) => Promise.reject(err));
+  },
+
+  getFormStates() {
+    return postRobot
+      .sendToParent('getFormStates', { version, guid })
       .then((res) => res.data)
       .catch((err) => Promise.reject(err));
   },
@@ -74,20 +113,23 @@ const client = {
       .catch((err) => Promise.reject(err));
   },
 
-  getUsuarios() {
-    return this.getRelatedEntitiesById(1, -1, 2); // TEMP SPT REVISAR
-  },
-
-  getRelatedEntitiesById(idEntityIn, id, idEntityOut) {
+  getFormType(idTipoForm) {
     return postRobot
-      .sendToParent('getUsuarios', { version, idEntityIn, id, idEntityOut })
+      .sendToParent('getFormType', { version, idTipoForm })
       .then((res) => res.data)
       .catch((err) => Promise.reject(err));
   },
 
-  getFormType(idTipoForm) {
+  getRelatedEntity(getEntity, fromEntity, id) {
     return postRobot
-      .sendToParent('getFormType', { version, idTipoForm })
+      .sendToParent('getRelatedEntity', { version, getEntity, fromEntity, id })
+      .then((res) => res.data)
+      .catch((err) => Promise.reject(err));
+  },
+
+  getUsers() {
+    return postRobot
+      .sendToParent('getUsers', { version })
       .then((res) => res.data)
       .catch((err) => Promise.reject(err));
   },
@@ -120,23 +162,26 @@ const client = {
       .catch((err) => Promise.reject(err));
   },
 
-  saveData(json) {
+  saveData(formData) {
     return postRobot
-      .sendToParent('saveData', { version, json })
+      .sendToParent('saveData', { version, formData })
       .then((res) => res.data)
       .catch((err) => Promise.reject(err));
   },
 
-  openDialogPicker(eventName, date, dateMax = '', dateMin = '') {
+  openDatePicker(date = '', dateMax = '', dateMin = '') {
+    if (date === '') {
+      date = getDateNow();
+    }
     return postRobot
-      .sendToParent('openDialogPicker', { version, eventName, date, dateMax, dateMin })
+      .sendToParent('openDatePicker', { version, date, dateMax, dateMin })
       .then((res) => res.data)
       .catch((err) => Promise.reject(err));
   },
 
-  openSignatureView(id, background = 'white') {
+  openSignatureView(background = 'white') {
     return postRobot
-      .sendToParent('openSignatureView', { version, id, background })
+      .sendToParent('openSignatureView', { version, background })
       .then((res) => res.data)
       .catch((err) => Promise.reject(err));
   },

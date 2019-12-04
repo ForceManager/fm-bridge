@@ -1,4 +1,9 @@
 {
   "presets": ["env"],
-  "plugins": ["babel-plugin-add-module-exports", "@babel/plugin-proposal-object-rest-spread"]
+  "plugins": ["babel-plugin-add-module-exports", "@babel/plugin-proposal-object-rest-spread"],
+  "env": {
+    "production": {
+      "plugins": ["transform-remove-console", { "exclude": ["error", "warn"] }]
+    }
+  }
 }
