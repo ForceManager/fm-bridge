@@ -214,16 +214,16 @@ const client = {
       .catch((err) => Promise.reject(err));
   },
 
-  showAlertDialog(id, message, btnOk) {
+  showAlertDialog(message, btnOk) {
     return postRobot
-      .sendToParent('showAlertDialog', { version, id, message, btnOk })
+      .sendToParent('showAlertDialog', { version, message, btnOk })
       .then((res) => res.data)
       .catch((err) => Promise.reject(err));
   },
 
-  showConfirmDialog(id, message, btnOkStr, btnKOStr) {
+  showConfirmDialog(message, btnOkStr, btnKOStr) {
     return postRobot
-      .sendToParent('showConfirmDialog', { version, id, message, btnOkStr, btnKOStr })
+      .sendToParent('showConfirmDialog', { version, message, btnOkStr, btnKOStr })
       .then((res) => res.data)
       .catch((err) => Promise.reject(err));
   },
