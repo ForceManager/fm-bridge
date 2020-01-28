@@ -101,7 +101,7 @@ const client = {
 
   getFormStates() {
     return postRobot
-      .sendToParent('getFormStates', { version, guid })
+      .sendToParent('getFormStates', { version })
       .then((res) => res.data)
       .catch((err) => Promise.reject(err));
   },
