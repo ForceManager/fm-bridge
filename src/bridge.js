@@ -21,34 +21,30 @@ function getDateNow() {
 
 const client = {
   getToken() {
-    return postRobot
-      .sendToParent('getToken', { version, guid })
-      .then((res) => res.data)
-      .catch((err) => Promise.reject(err));
+    return new Promise((resolve, reject) => {
+      postRobot
+        .sendToParent('getToken', { version, guid })
+        .then((res) => resolve(res.data))
+        .catch(reject);
+    });
   },
 
   getNewToken() {
-    return postRobot
-      .sendToParent('getNewToken', { version, guid })
-      .then((res) => res.data)
-      .catch((err) => Promise.reject(err));
+    return new Promise((resolve, reject) => {
+      postRobot
+        .sendToParent('getNewToken', { version, guid })
+        .then((res) => resolve(res.data))
+        .catch(reject);
+    });
   },
 
   getContext() {
-    return postRobot
-      .sendToParent('getContext', { version })
-      .then((res) => res.data)
-      .catch((err) => Promise.reject(err));
-  },
-
-  getEntityId() {
-    console.warn('Warn: getEntityId is deprecated. Please use getContext instead.');
-    return postRobot
-      .sendToParent('getEntityId', { version })
-      .then((res) => {
-        return res.data;
-      })
-      .catch((err) => Promise.reject(err));
+    return new Promise((resolve, reject) => {
+      postRobot
+        .sendToParent('getContext', { version })
+        .then((res) => resolve(res.data))
+        .catch(reject);
+    });
   },
 
   getLiteral(literal) {
@@ -93,139 +89,137 @@ const client = {
   // ##### FORM FUNCTIONS ##### //
 
   getFormInitData() {
-    return postRobot
-      .sendToParent('getFormInitData', { version, guid })
-      .then((res) => res.data)
-      .catch((err) => Promise.reject(err));
+    return new Promise((resolve, reject) => {
+      postRobot
+        .sendToParent('getFormInitData', { version, guid })
+        .then((res) => resolve(res.data))
+        .catch(reject);
+    });
   },
 
   getFormStates() {
-    return postRobot
-      .sendToParent('getFormStates', { version })
-      .then((res) => res.data)
-      .catch((err) => Promise.reject(err));
+    return new Promise((resolve, reject) => {
+      postRobot
+        .sendToParent('getFormStates', { version })
+        .then((res) => resolve(res.data))
+        .catch(reject);
+    });
   },
 
   getValueList(tableName) {
-    return postRobot
-      .sendToParent('getValueList', { version, tableName })
-      .then((res) => res.data)
-      .catch((err) => Promise.reject(err));
+    return new Promise((resolve, reject) => {
+      postRobot
+        .sendToParent('getValueList', { version, tableName })
+        .then((res) => resolve(res.data))
+        .catch(reject);
+    });
   },
 
   getFormType(idTipoForm) {
-    return postRobot
-      .sendToParent('getFormType', { version, idTipoForm })
-      .then((res) => res.data)
-      .catch((err) => Promise.reject(err));
+    return new Promise((resolve, reject) => {
+      postRobot
+        .sendToParent('getFormType', { version, idTipoForm })
+        .then((res) => resolve(res.data))
+        .catch(reject);
+    });
   },
 
   getRelatedEntity(getEntity, fromEntity, id) {
-    return postRobot
-      .sendToParent('getRelatedEntity', { version, getEntity, fromEntity, id })
-      .then((res) => res.data)
-      .catch((err) => Promise.reject(err));
+    return new Promise((resolve, reject) => {
+      postRobot
+        .sendToParent('getRelatedEntity', { version, getEntity, fromEntity, id })
+        .then((res) => resolve(res.data))
+        .catch(reject);
+    });
   },
 
   getUsers() {
-    return postRobot
-      .sendToParent('getUsers', { version })
-      .then((res) => res.data)
-      .catch((err) => Promise.reject(err));
+    return new Promise((resolve, reject) => {
+      postRobot
+        .sendToParent('getUsers', { version })
+        .then((res) => resolve(res.data))
+        .catch(reject);
+    });
   },
 
   collapseImagesView() {
-    return postRobot
-      .sendToParent('collapseImagesView', { version })
-      .then((res) => res.data)
-      .catch((err) => Promise.reject(err));
+    return postRobot.sendToParent('collapseImagesView', { version });
   },
 
   expandImagesView() {
-    return postRobot
-      .sendToParent('expandImagesView', { version })
-      .then((res) => res.data)
-      .catch((err) => Promise.reject(err));
+    return postRobot.sendToParent('expandImagesView', { version });
   },
 
   finishActivity() {
-    return postRobot
-      .sendToParent('finishActivity', { version })
-      .then((res) => res.data)
-      .catch((err) => Promise.reject(err));
+    return postRobot.sendToParent('finishActivity', { version });
   },
 
   setTitle(title) {
-    return postRobot
-      .sendToParent('setTitle', { version, title })
-      .then((res) => res.data)
-      .catch((err) => Promise.reject(err));
+    return postRobot.sendToParent('setTitle', { version, title });
   },
 
   saveData(formData) {
-    return postRobot
-      .sendToParent('saveData', { version, formData })
-      .then((res) => res.data)
-      .catch((err) => Promise.reject(err));
+    return new Promise((resolve, reject) => {
+      postRobot
+        .sendToParent('saveData', { version, formData })
+        .then((res) => resolve(res.data))
+        .catch(reject);
+    });
   },
 
   openDatePicker(date = '', dateMax = '', dateMin = '') {
-    if (date === '') {
-      date = getDateNow();
-    }
-    return postRobot
-      .sendToParent('openDatePicker', { version, date, dateMax, dateMin })
-      .then((res) => res.data)
-      .catch((err) => Promise.reject(err));
+    return new Promise((resolve, reject) => {
+      if (date === '') {
+        date = getDateNow();
+      }
+      postRobot
+        .sendToParent('openDatePicker', { version, date, dateMax, dateMin })
+        .then((res) => resolve(res.data))
+        .catch(reject);
+    });
   },
 
   openSignatureView(background = 'white') {
-    return postRobot
-      .sendToParent('openSignatureView', { version, background })
-      .then((res) => res.data)
-      .catch((err) => Promise.reject(err));
+    return new Promise((resolve, reject) => {
+      postRobot
+        .sendToParent('openSignatureView', { version, background })
+        .then((res) => resolve(res.data))
+        .catch(reject);
+    });
   },
 
   showCameraImages() {
-    return postRobot
-      .sendToParent('showCameraImages', { version })
-      .then((res) => res.data)
-      .catch((err) => Promise.reject(err));
+    return postRobot.sendToParent('showCameraImages', { version });
   },
 
   hideCameraImages() {
-    return postRobot
-      .sendToParent('hideCameraImages', { version })
-      .then((res) => res.data)
-      .catch((err) => Promise.reject(err));
+    return postRobot.sendToParent('hideCameraImages', { version });
   },
 
   showLoading() {
-    return postRobot
-      .sendToParent('showLoading', { version })
-      .then((res) => res.data)
-      .catch((err) => Promise.reject(err));
+    return postRobot.sendToParent('showLoading', { version });
   },
 
   hideLoading() {
-    return postRobot
-      .sendToParent('hideLoading', { version })
-      .then((res) => res.data)
-      .catch((err) => Promise.reject(err));
+    return postRobot.sendToParent('hideLoading', { version });
   },
 
   showAlertDialog(message, btnOk) {
-    return postRobot
-      .sendToParent('showAlertDialog', { version, message, btnOk })
-      .then((res) => res.data)
-      .catch((err) => Promise.reject(err));
+    return new Promise((resolve, reject) => {
+      postRobot
+        .sendToParent('showAlertDialog', { version, message, btnOk })
+        .then((res) => resolve(res.data))
+        .catch(reject);
+    });
   },
 
   showConfirmDialog(message, btnOkStr, btnKOStr) {
-    return postRobot
-      .sendToParent('showConfirmDialog', { version, message, btnOkStr, btnKOStr })
-      .then((res) => res.data)
-      .catch((err) => Promise.reject(err));
+    return new Promise((resolve, reject) => {
+      postRobot
+        .sendToParent('showConfirmDialog', { version, message, btnOkStr, btnKOStr })
+        .then((res) => resolve(res.data))
+        .catch(reject);
+    });
   },
 };
 
