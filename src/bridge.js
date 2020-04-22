@@ -10,6 +10,33 @@ const guid = window.name;
 let platform;
 let valuelist = [];
 
+const PLATFORM_BRIDGE = {
+  ios: IosBridge,
+  android: AndroidBridge,
+  web: WebBbridge,
+  dev: WebBbridge,
+};
+
+function getPlatform() {
+  const userAgent = navigator.userAgent || navigator.vendor;
+  let platform;
+
+  if (/android/i.test(userAgent)) {
+    platform = 'android';
+  } else if (
+    (/iPad|iPhone|iPod/.test(navigator.platform) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) &&
+    !window.MSStream
+  ) {
+    platform = 'ios';
+  } else {
+    platform = 'web';
+  }
+  return platform;
+}
+
+const platform = getPlatform();
+
 function getDateNow() {
   const today = new Date();
   const dd = today.getDate();
@@ -51,34 +78,30 @@ function getPlatform() {
 
 const client = {
   getToken() {
-    return postRobot
-      .sendToParent('getToken', { version, guid })
-      .then((res) => res.data)
-      .catch((err) => Promise.reject(err));
+    return new Promise((resolve, reject) => {
+      postRobot
+        .sendToParent('getToken', { version, guid })
+        .then((res) => resolve(res.data))
+        .catch(reject);
+    });
   },
 
   getNewToken() {
-    return postRobot
-      .sendToParent('getNewToken', { version, guid })
-      .then((res) => res.data)
-      .catch((err) => Promise.reject(err));
+    return new Promise((resolve, reject) => {
+      postRobot
+        .sendToParent('getNewToken', { version, guid })
+        .then((res) => resolve(res.data))
+        .catch(reject);
+    });
   },
 
   getContext() {
-    return postRobot
-      .sendToParent('getContext', { version })
-      .then((res) => res.data)
-      .catch((err) => Promise.reject(err));
-  },
-
-  getEntityId() {
-    console.warn('Warn: getEntityId is deprecated. Please use getContext instead.');
-    return postRobot
-      .sendToParent('getEntityId', { version })
-      .then((res) => {
-        return res.data;
-      })
-      .catch((err) => Promise.reject(err));
+    return new Promise((resolve, reject) => {
+      postRobot
+        .sendToParent('getContext', { version })
+        .then((res) => resolve(res.data))
+        .catch(reject);
+    });
   },
 
   getLiteral(literal) {
@@ -171,12 +194,7 @@ const client = {
       .catch((err) => Promise.reject(err));
   },
 
-  getFormType(idTipoForm) {
-    return postRobot
-      .sendToParent('getFormType', { version, idTipoForm })
-      .then((res) => res.data)
-      .catch((err) => Promise.reject(err));
-  },
+  getFormType: (idTipoForm) => call('getFormType', { idTipoForm }),
 
   getRelatedEntity(getEntity, fromEntity, id) {
     if (platform === 'ios') {
@@ -222,26 +240,11 @@ const client = {
       .catch((err) => Promise.reject(err));
   },
 
-  getUsers() {
-    return postRobot
-      .sendToParent('getUsers', { version })
-      .then((res) => res.data)
-      .catch((err) => Promise.reject(err));
-  },
+  getUsers: () => call('getUsers', {}),
 
-  collapseImagesView() {
-    return postRobot
-      .sendToParent('collapseImagesView', { version })
-      .then((res) => res.data)
-      .catch((err) => Promise.reject(err));
-  },
+  collapseImagesView: () => call('collapseImagesView', {}),
 
-  expandImagesView() {
-    return postRobot
-      .sendToParent('expandImagesView', { version })
-      .then((res) => res.data)
-      .catch((err) => Promise.reject(err));
-  },
+  expandImagesView: () => call('expandImagesView', {}),
 
   finishActivity() {
     if (platform === 'ios') {
@@ -301,15 +304,13 @@ const client = {
       .catch((err) => Promise.reject(err));
   },
 
-  openDatePicker(date = '', dateMax = '', dateMin = '') {
+  openDatePicker: (date = '', dateMax = '', dateMin = '') => {
     if (date === '') {
       date = getDateNow();
     }
-    return postRobot
-      .sendToParent('openDatePicker', { version, date, dateMax, dateMin })
-      .then((res) => res.data)
-      .catch((err) => Promise.reject(err));
+    return call('saveData', { date, dateMax, dateMin });
   },
+  openSignatureView: (background = 'white') => call('openSignatureView', { background }),
 
   openSignatureView(background = 'white') {
     if (platform === 'ios') {
@@ -320,19 +321,9 @@ const client = {
       .catch((err) => Promise.reject(err));
   },
 
-  showCameraImages() {
-    return postRobot
-      .sendToParent('showCameraImages', { version })
-      .then((res) => res.data)
-      .catch((err) => Promise.reject(err));
-  },
+  hideCameraImages: () => call('hideCameraImages', {}),
 
-  hideCameraImages() {
-    return postRobot
-      .sendToParent('hideCameraImages', { version })
-      .then((res) => res.data)
-      .catch((err) => Promise.reject(err));
-  },
+  showLoading: () => call('showLoading', {}),
 
   showLoading() {
     if (platform === 'ios') {
@@ -354,19 +345,8 @@ const client = {
       .catch((err) => Promise.reject(err));
   },
 
-  showAlertDialog(message, btnOk) {
-    return postRobot
-      .sendToParent('showAlertDialog', { version, message, btnOk })
-      .then((res) => res.data)
-      .catch((err) => Promise.reject(err));
-  },
-
-  showConfirmDialog(message, btnOkStr, btnKOStr) {
-    return postRobot
-      .sendToParent('showConfirmDialog', { version, message, btnOkStr, btnKOStr })
-      .then((res) => res.data)
-      .catch((err) => Promise.reject(err));
-  },
+  showConfirmDialog: (message, btnOkStr, btnKOStr) =>
+    call('showConfirmDialog', { message, btnOkStr, btnKOStr }),
 };
 
 platform = getPlatform();

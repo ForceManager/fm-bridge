@@ -1,6 +1,6 @@
 {
   "name": "fm-bridge",
-  "version": "0.0.1-beta.14.1",
+  "version": "0.0.1-beta.16",
   "description": "ForceManager Bridge",
   "keywords": [
     "webpack",
@@ -26,29 +26,30 @@
     "build": "webpack --env dev && webpack --env build"
   },
   "dependencies": {
-    "axios": "^0.18.0",
+    "@babel/plugin-proposal-optional-chaining": "^7.9.0",
+    "axios": "^0.19.2",
     "moment": "^2.24.0",
-    "post-robot": "^9.0.1"
+    "post-robot": "^10.0.31"
   },
   "devDependencies": {
-    "@babel/cli": "^7.4.3",
-    "@babel/core": "^7.4.3",
-    "@babel/plugin-proposal-export-default-from": "^7.2.0",
-    "@babel/plugin-proposal-export-namespace-from": "^7.2.0",
-    "@babel/plugin-proposal-object-rest-spread": "^7.4.3",
-    "@babel/preset-env": "^7.4.3",
-    "babel-eslint": "^8.0.3",
-    "babel-loader": "^8.0.0-beta.4",
-    "babel-plugin-add-module-exports": "^0.2.1",
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.9.0",
+    "@babel/plugin-proposal-export-default-from": "^7.8.3",
+    "@babel/plugin-proposal-export-namespace-from": "^7.8.3",
+    "@babel/plugin-proposal-object-rest-spread": "^7.9.5",
+    "@babel/preset-env": "^7.9.5",
+    "babel-eslint": "^10.1.0",
+    "babel-loader": "^8.1.0",
+    "babel-plugin-add-module-exports": "^1.0.2",
     "babel-plugin-transform-remove-console": "^6.9.4",
     "babel-preset-env": "^7.0.0-beta.3",
     "babel-preset-stage-1": "^6.24.1",
     "babel-register": "^7.0.0-beta.3",
-    "eslint": "^5.16.0",
-    "eslint-loader": "^2.1.2",
-    "uglifyjs-webpack-plugin": "^1.2.7",
-    "webpack": "^4.29.6",
-    "webpack-cli": "^3.3.0",
-    "yargs": "^10.0.3"
+    "eslint": "^6.8.0",
+    "eslint-loader": "^4.0.0",
+    "uglifyjs-webpack-plugin": "^2.2.0",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11",
+    "yargs": "^15.3.1"
   }
 }
