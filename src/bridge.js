@@ -1,8 +1,38 @@
 import postRobot from 'post-robot';
+import IosBridge from './iosBridge';
+import AndroidBridge from './androidBridge';
+import WebBbridge from './webBbridge';
 
 const packageJson = require('../package.json');
 const version = packageJson.version.substring(0, packageJson.version.indexOf('.'));
 const guid = window.name;
+
+const PLATFORM_BRIDGE = {
+  ios: IosBridge,
+  android: AndroidBridge,
+  web: WebBbridge,
+  dev: WebBbridge,
+};
+
+function getPlatform() {
+  const userAgent = navigator.userAgent || navigator.vendor;
+  let platform;
+
+  if (/android/i.test(userAgent)) {
+    platform = 'android';
+  } else if (
+    (/iPad|iPhone|iPod/.test(navigator.platform) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) &&
+    !window.MSStream
+  ) {
+    platform = 'ios';
+  } else {
+    platform = 'web';
+  }
+  return platform;
+}
+
+const platform = getPlatform();
 
 function getDateNow() {
   const today = new Date();
@@ -17,6 +47,13 @@ function getDateNow() {
     mm = '0' + mm;
   }
   return dd + '/' + mm + '/' + yyyy;
+}
+
+function call(name, data = {}) {
+  if (PLATFORM_BRIDGE[platform]?.[name]) {
+    return PLATFORM_BRIDGE[platform][name]({ version, ...data });
+  }
+  return Promise.reject();
 }
 
 const client = {
@@ -57,170 +94,51 @@ const client = {
     return postRobot.sendToParent('getLiteral', { version, literals });
   },
 
-  // getUserData() {
-  //   return postRobot.sendToParent('getUserData', { version });
-  // },
-
-  // ##### SFM FUNCTIONS ##### //
-
-  // getFilteredUsers() {
-  //   return postRobot.sendToParent('getFilteredUsers', { version });
-  // },
-
-  // getPermissions() {
-  //   return postRobot.sendToParent('getPermissions', { version });
-  // },
-
-  // setDrilldown(key, value) {
-  //   if (!key || !value) return Promise.reject({ msg: 'No key or value' });
-  //   return postRobot.sendToParent('setDrilldown', { version, key, value });
-  // },
-
-  // getFilteredPeriodString(period) {
-  //   if (period !== undefined) {
-  //     return {
-  //       startDate: period.dateStart.getTime(),
-  //       endDate: period.dateEnd.getTime(),
-  //     };
-  //   }
-  //   return postRobot.sendToParent('getFilteredPeriodString', { version });
-  // },
-
   // ##### FORM FUNCTIONS ##### //
 
-  getFormInitData() {
-    return new Promise((resolve, reject) => {
-      postRobot
-        .sendToParent('getFormInitData', { version, guid })
-        .then((res) => resolve(res.data))
-        .catch(reject);
-    });
-  },
+  getFormInitData: () => call('getFormInitData', {}),
 
-  getFormStates() {
-    return new Promise((resolve, reject) => {
-      postRobot
-        .sendToParent('getFormStates', { version })
-        .then((res) => resolve(res.data))
-        .catch(reject);
-    });
-  },
+  getFormStates: () => call('getFormStates', {}),
 
-  getValueList(tableName) {
-    return new Promise((resolve, reject) => {
-      postRobot
-        .sendToParent('getValueList', { version, tableName })
-        .then((res) => resolve(res.data))
-        .catch(reject);
-    });
-  },
+  getValueList: (tableName) => call('getValueList', { tableName }),
 
-  getFormType(idTipoForm) {
-    return new Promise((resolve, reject) => {
-      postRobot
-        .sendToParent('getFormType', { version, idTipoForm })
-        .then((res) => resolve(res.data))
-        .catch(reject);
-    });
-  },
+  getFormType: (idTipoForm) => call('getFormType', { idTipoForm }),
 
-  getRelatedEntity(getEntity, fromEntity, id) {
-    return new Promise((resolve, reject) => {
-      postRobot
-        .sendToParent('getRelatedEntity', { version, getEntity, fromEntity, id })
-        .then((res) => resolve(res.data))
-        .catch(reject);
-    });
-  },
+  getRelatedEntity: (getEntity, fromEntity, id) =>
+    call('getFormType', { getEntity, fromEntity, id }),
 
-  getUsers() {
-    return new Promise((resolve, reject) => {
-      postRobot
-        .sendToParent('getUsers', { version })
-        .then((res) => resolve(res.data))
-        .catch(reject);
-    });
-  },
+  getUsers: () => call('getUsers', {}),
 
-  collapseImagesView() {
-    return postRobot.sendToParent('collapseImagesView', { version });
-  },
+  collapseImagesView: () => call('collapseImagesView', {}),
 
-  expandImagesView() {
-    return postRobot.sendToParent('expandImagesView', { version });
-  },
+  expandImagesView: () => call('expandImagesView', {}),
 
-  finishActivity() {
-    return postRobot.sendToParent('finishActivity', { version });
-  },
+  finishActivity: () => call('finishActivity', {}),
 
-  setTitle(title) {
-    return postRobot.sendToParent('setTitle', { version, title });
-  },
+  setTitle: (title) => call('setTitle', { title }),
 
-  saveData(formData) {
-    return new Promise((resolve, reject) => {
-      postRobot
-        .sendToParent('saveData', { version, formData })
-        .then((res) => resolve(res.data))
-        .catch(reject);
-    });
-  },
+  saveData: (formData) => call('saveData', { formData }),
 
-  openDatePicker(date = '', dateMax = '', dateMin = '') {
-    return new Promise((resolve, reject) => {
-      if (date === '') {
-        date = getDateNow();
-      }
-      postRobot
-        .sendToParent('openDatePicker', { version, date, dateMax, dateMin })
-        .then((res) => resolve(res.data))
-        .catch(reject);
-    });
+  openDatePicker: (date = '', dateMax = '', dateMin = '') => {
+    if (date === '') {
+      date = getDateNow();
+    }
+    return call('saveData', { date, dateMax, dateMin });
   },
+  openSignatureView: (background = 'white') => call('openSignatureView', { background }),
 
-  openSignatureView(background = 'white') {
-    return new Promise((resolve, reject) => {
-      postRobot
-        .sendToParent('openSignatureView', { version, background })
-        .then((res) => resolve(res.data))
-        .catch(reject);
-    });
-  },
+  showCameraImages: () => call('showCameraImages', {}),
 
-  showCameraImages() {
-    return postRobot.sendToParent('showCameraImages', { version });
-  },
+  hideCameraImages: () => call('hideCameraImages', {}),
 
-  hideCameraImages() {
-    return postRobot.sendToParent('hideCameraImages', { version });
-  },
+  showLoading: () => call('showLoading', {}),
 
-  showLoading() {
-    return postRobot.sendToParent('showLoading', { version });
-  },
+  hideLoading: () => call('hideLoading', {}),
 
-  hideLoading() {
-    return postRobot.sendToParent('hideLoading', { version });
-  },
+  showAlertDialog: (message, btnOk) => call('showAlertDialog', { message, btnOk }),
 
-  showAlertDialog(message, btnOk) {
-    return new Promise((resolve, reject) => {
-      postRobot
-        .sendToParent('showAlertDialog', { version, message, btnOk })
-        .then((res) => resolve(res.data))
-        .catch(reject);
-    });
-  },
-
-  showConfirmDialog(message, btnOkStr, btnKOStr) {
-    return new Promise((resolve, reject) => {
-      postRobot
-        .sendToParent('showConfirmDialog', { version, message, btnOkStr, btnKOStr })
-        .then((res) => resolve(res.data))
-        .catch(reject);
-    });
-  },
+  showConfirmDialog: (message, btnOkStr, btnKOStr) =>
+    call('showConfirmDialog', { message, btnOkStr, btnKOStr }),
 };
 
 export default client;
