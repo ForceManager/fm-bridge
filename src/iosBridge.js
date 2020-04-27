@@ -1,48 +1,24 @@
-import utils from './utils';
+import { formatFormInitData, formatFormStates, formatValueList } from './utils';
 import CONSTANTS from './constants/ios.js';
 
 let valuelist = [];
-let users = [];
 
-function call(id, params) {
-  return new Promise((resolve) => {
-    resolve();
-    window.webkit.messageHandlers[id].postMessage(params || id);
-  });
-}
+export const IosBackend = {
+  // FORMS
 
-function responseCall(id, params, timeout) {
-  return new Promise((resolve, reject) => {
-    const eventFunc = (event) => {
-      clearTimeout(timeout);
-      window.removeEventListener(id, eventFunc);
-      resolve(event.detail.response);
-    };
-    const timeoutFunc = () => {
-      window.removeEventListener(id, eventFunc);
-      reject({ error: `${id} timeout` });
-    };
-
-    window.addEventListener(id, eventFunc);
-    timeout = timeout && setTimeout(timeoutFunc, 3000);
-    window.webkit.messageHandlers[id].postMessage(params || id);
-  });
-}
-
-const IosBackend = {
   getFormInitData(data) {
     return new Promise((resolve, reject) => {
-      responseCall('getInitData', null)
-        .then((res) => resolve(utils.formatFormInitData(res)))
+      this.genericResponseCall('getInitData', null)
+        .then((res) => resolve(formatFormInitData(res)))
         .catch((err) => reject(err));
     });
   },
 
   getFormStates(data) {
     return new Promise((resolve, reject) => {
-      responseCall('getTableName', { tableName: 'tblEstadosForms' })
+      this.genericResponseCall('getTableName', { tableName: 'tblEstadosForms' })
         .then((res) => {
-          resolve(utils.formatFormStates(res));
+          resolve(formatFormStates(res));
         })
         .catch((err) => reject(err));
     });
@@ -51,14 +27,15 @@ const IosBackend = {
   getValueList(data) {
     return new Promise((resolve, reject) => {
       const tableName = data.tableName;
+
       if (!tableName) {
         reject({ error: 'No table name' });
       } else if (valuelist[tableName]) {
         resolve(valuelist[tableName]);
       } else {
-        responseCall('getTableName', { tableName })
+        this.genericResponseCall('getTableName', { tableName })
           .then((res) => {
-            valuelist[tableName] = utils.formatValueList(res);
+            valuelist[tableName] = formatValueList(res);
             resolve(valuelist[tableName]);
           })
           .catch((err) => reject(err));
@@ -78,14 +55,16 @@ const IosBackend = {
         data.fromEntity = data.getEntity;
       }
 
-      let eventName = `getEntity-${CONSTANTS.entity[data.getEntity]}-${CONSTANTS.entityId[
-        data.fromEntity
-      ] || CONSTANTS.entity[data.getEntity]}-${data.id}`;
+      let eventName = `getEntity-${CONSTANTS.entity[data.getEntity]}-${
+        CONSTANTS.entityId[data.fromEntity] || CONSTANTS.entity[data.getEntity]
+      }-${data.id}`;
+
       let getRelatedEntitiesByIdEvent = (event) => {
         clearTimeout(timeout);
         removeEventListener(eventName, getRelatedEntitiesByIdEvent);
         resolve(event.detail.response);
       };
+
       let timeoutFunc = () => {
         window.removeEventListener(eventName, getRelatedEntitiesByIdEvent);
         reject('getRelatedEntitiesById timeout');
@@ -93,12 +72,6 @@ const IosBackend = {
 
       window.addEventListener(eventName, getRelatedEntitiesByIdEvent);
       timeout = setTimeout(timeoutFunc, 5000);
-      console.log('getRelatedEntitiesById', {
-        idEntityItem: eventName,
-        idEntityIn: CONSTANTS.entityId[data.fromEntity] || CONSTANTS.entity[data.getEntity],
-        idEntityRecupear: +data.id,
-        idEntityOut: CONSTANTS.entity[data.getEntity],
-      });
       window.webkit.messageHandlers.getRelatedEntitiesById.postMessage({
         idEntityItem: eventName,
         idEntityIn: CONSTANTS.entityId[data.fromEntity] || CONSTANTS.entity[data.getEntity],
@@ -110,9 +83,9 @@ const IosBackend = {
 
   getFormType(data) {
     return new Promise((resolve, reject) => {
-      responseCall('getFilteredForms', {
+      this.genericResponseCall('getFilteredForms', {
         fieldName: '',
-        formValue: idTipoForm,
+        formValue: data.idTipoForm,
       })
         .then((res) => resolve(res))
         .catch((err) => reject(err));
@@ -129,9 +102,8 @@ const IosBackend = {
 
   saveData(data) {
     return new Promise((resolve, reject) => {
-      let timeout;
-      let saveDataOK;
-      let saveDataKO;
+      let timeout, saveDataOK, saveDataKO;
+
       let timeoutFunc = () => {
         window.removeEventListener('saveDataOK', saveDataOK);
         window.removeEventListener('saveDataKO', saveDataKO);
@@ -160,7 +132,7 @@ const IosBackend = {
   },
 
   openDatePicker(data) {
-    return responseCall(
+    return this.genericResponseCall(
       'openDialogPicker',
       {
         idDialogPicker: 'openDatePicker',
@@ -173,7 +145,7 @@ const IosBackend = {
   },
 
   openSignatureView(data) {
-    return responseCall(
+    return this.genericResponseCall(
       'openSignatureView',
       {
         idSignature: 'openSignatureView',
@@ -208,7 +180,7 @@ const IosBackend = {
   },
 
   showAlertDialog(data) {
-    return responseCall(
+    return this.genericResponseCall(
       'showAlertDialog',
       {
         idAlertDialog: data.id,
@@ -220,7 +192,7 @@ const IosBackend = {
   },
 
   showConfirmDialog(data) {
-    return responseCall(
+    return this.genericResponseCall(
       'showConfirmDialog',
       {
         idConfirmDialog: data.id,
@@ -230,6 +202,31 @@ const IosBackend = {
       },
       false,
     );
+  },
+
+  genericCall(id, params) {
+    return new Promise((resolve) => {
+      resolve();
+      window.webkit.messageHandlers[id].postMessage(params || id);
+    });
+  },
+
+  genericResponseCall(id, params, timeout) {
+    return new Promise((resolve, reject) => {
+      const eventFunc = (event) => {
+        clearTimeout(timeout);
+        window.removeEventListener(id, eventFunc);
+        resolve(event.detail.response);
+      };
+      const timeoutFunc = () => {
+        window.removeEventListener(id, eventFunc);
+        reject({ error: `${id} timeout` });
+      };
+
+      window.addEventListener(id, eventFunc);
+      timeout = timeout && setTimeout(timeoutFunc, 3000);
+      window.webkit.messageHandlers[id].postMessage(params || id);
+    });
   },
 };
 

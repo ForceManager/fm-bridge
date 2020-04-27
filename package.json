@@ -1,6 +1,6 @@
 {
   "name": "fm-bridge",
-  "version": "0.0.1-beta.16",
+  "version": "0.0.1-beta.17",
   "description": "ForceManager Bridge",
   "keywords": [
     "webpack",
@@ -23,13 +23,13 @@
     "url": "git@github.com:ForceManager/fm-bridge.git"
   },
   "scripts": {
-    "build": "webpack --env dev && webpack --env build"
+    "build": "webpack --env dev && webpack --env build",
+    "build:watch": "webpack --watch --env dev"
   },
   "dependencies": {
-    "@babel/plugin-proposal-optional-chaining": "^7.9.0",
     "axios": "^0.19.2",
     "moment": "^2.24.0",
-    "post-robot": "^10.0.31"
+    "post-robot": "^9.0.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.8.4",
@@ -37,6 +37,7 @@
     "@babel/plugin-proposal-export-default-from": "^7.8.3",
     "@babel/plugin-proposal-export-namespace-from": "^7.8.3",
     "@babel/plugin-proposal-object-rest-spread": "^7.9.5",
+    "@babel/plugin-proposal-optional-chaining": "^7.9.0",
     "@babel/preset-env": "^7.9.5",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.1.0",

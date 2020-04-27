@@ -1,53 +1,19 @@
 import postRobot from 'post-robot';
+import { getPlatform, getDateNow } from './utils';
 import IosBridge from './iosBridge';
 import AndroidBridge from './androidBridge';
-import WebBbridge from './webBbridge';
+import WebBbridge from './webBridge';
 
 const packageJson = require('../package.json');
-const version = packageJson.version.substring(0, packageJson.version.indexOf('.'));
+const version = packageJson.version;
 const guid = window.name;
-
+const platform = getPlatform();
 const PLATFORM_BRIDGE = {
   ios: IosBridge,
   android: AndroidBridge,
   web: WebBbridge,
   dev: WebBbridge,
 };
-
-function getPlatform() {
-  const userAgent = navigator.userAgent || navigator.vendor;
-  let platform;
-
-  if (/android/i.test(userAgent)) {
-    platform = 'android';
-  } else if (
-    (/iPad|iPhone|iPod/.test(navigator.platform) ||
-      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) &&
-    !window.MSStream
-  ) {
-    platform = 'ios';
-  } else {
-    platform = 'web';
-  }
-  return platform;
-}
-
-const platform = getPlatform();
-
-function getDateNow() {
-  const today = new Date();
-  const dd = today.getDate();
-  const mm = today.getMonth() + 1;
-  const yyyy = today.getFullYear();
-
-  if (dd < 10) {
-    dd = '0' + dd;
-  }
-  if (mm < 10) {
-    mm = '0' + mm;
-  }
-  return dd + '/' + mm + '/' + yyyy;
-}
 
 function call(name, data = {}) {
   if (PLATFORM_BRIDGE[platform]?.[name]) {
@@ -105,7 +71,7 @@ const client = {
   getFormType: (idTipoForm) => call('getFormType', { idTipoForm }),
 
   getRelatedEntity: (getEntity, fromEntity, id) =>
-    call('getFormType', { getEntity, fromEntity, id }),
+    call('getRelatedEntity', { getEntity, fromEntity, id }),
 
   getUsers: () => call('getUsers', {}),
 
