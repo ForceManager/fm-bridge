@@ -1,34 +1,21 @@
-import utils from './utils';
+import { formatFormInitData, formatFormStates, formatValueList, formatFormType } from './utils';
 import CONSTANTS from './constants/android.js';
 
 let valuelist = [];
-let users = [];
 
-function call(id, params) {
-  return new Promise((resolve, reject) => {
-    try {
-      const table = JSON.parse(window.AndroidForms.getTableName('tblEstadosForms'));
-
-      resolve(utils.formatFormStates(table));
-    } catch (err) {
-      reject(err);
-    }
-  });
-}
-
-function syncResponseCall(id, params, format) {
+function syncCall(id, params, format) {
   return new Promise((resolve, reject) => {
     try {
       const res = JSON.parse(window.AndroidForms[id](...params));
 
-      resolve(format ? format(res) : res);
+      resolve(res && format ? format(res) : res);
     } catch (err) {
       reject(err);
     }
   });
 }
 
-function responseCall(id, params, timeout) {
+function asyncCall(id, params, timeout) {
   return new Promise((resolve, reject) => {
     const eventFunc = (event) => {
       window.removeEventListener(id, eventFunc);
@@ -46,22 +33,11 @@ function responseCall(id, params, timeout) {
 }
 
 const AndroidBackend = {
-  getFormInitData: ({ ...params }) =>
-    syncResponseCall('getFormInitData', { ...params }, utils.formatFormInitData),
+  getFormInitData: () => syncCall('getInitData', [], formatFormInitData),
 
-  getFormStates(data) {
-    return new Promise((resolve, reject) => {
-      try {
-        const table = JSON.parse(window.AndroidForms.getTableName('tblEstadosForms'));
+  getFormStates: () => syncCall('getTableName', ['tblEstadosForms'], formatFormStates),
 
-        resolve(utils.formatFormStates(table));
-      } catch (err) {
-        reject(err);
-      }
-    });
-  },
-
-  getValueList(data) {
+  getValueList: (data) => {
     return new Promise((resolve, reject) => {
       if (valuelist[data.tableName]) {
         resolve(valuelist[data.tableName]);
@@ -69,7 +45,7 @@ const AndroidBackend = {
         try {
           const table = JSON.parse(window.AndroidForms.getTableName(data.tableName));
 
-          valuelist[data.tableName] = utils.formatValueList(table);
+          valuelist[data.tableName] = formatValueList(table);
           resolve(valuelist[data.tableName]);
         } catch (err) {
           reject(err);
@@ -78,21 +54,20 @@ const AndroidBackend = {
     });
   },
 
-  getUsers(data) {
-    return this.getRelatedEntity({ fromEntity: 'users', id: -1, getEntity: 'users' });
-  },
+  getUsers: () => this.getRelatedEntity({ fromEntity: 'users', id: -1, getEntity: 'users' }),
 
-  getRelatedEntity(data) {
-    return new Promise((resolve, reject) => {
+  getRelatedEntity: (data) =>
+    new Promise((resolve, reject) => {
       let timeout;
 
       if (!data.fromEntity) {
         data.fromEntity = data.getEntity;
       }
 
-      const eventName = `getEntity-${CONSTANTS.entity[data.getEntity]}-${CONSTANTS.entityId[
-        data.fromEntity
-      ] || CONSTANTS.entity[data.getEntity]}-${data.id}`;
+      const eventName = `getEntity-${CONSTANTS.entity[data.getEntity]}-${
+        CONSTANTS.entityId[data.fromEntity] || CONSTANTS.entity[data.getEntity]
+      }-${data.id}`;
+
       let getRelatedEntitiesByIdEvent = (event) => {
         removeEventListener(eventName, getRelatedEntitiesByIdEvent);
         clearTimeout(timeout);
@@ -102,6 +77,7 @@ const AndroidBackend = {
           reject(err);
         }
       };
+
       let timeoutFunc = () => {
         window.removeEventListener(eventName, getRelatedEntitiesByIdEvent);
         reject('eventName timeout');
@@ -115,34 +91,27 @@ const AndroidBackend = {
         data.id,
         CONSTANTS.entity[data.getEntity],
       );
-    });
-  },
+    }),
 
-  getFormType(data) {
-    return new Promise((resolve, reject) => {
+  getFormType: (data) =>
+    new Promise((resolve, reject) => {
       const res = window.AndroidForms.getFilteredForms('', data.idTipoForm);
 
       try {
-        resolve(utils.formatFormType(JSON.parse(res)));
+        resolve(formatFormType(JSON.parse(res)));
       } catch (err) {
         reject(err);
       }
-    });
-  },
+    }),
 
-  finishActivity(data) {
-    return Promise.resolve(window.AndroidForms.finishActivity());
-  },
+  finishActivity: () => Promise.resolve(window.AndroidForms.finishActivity()),
 
-  setTitle(data) {
-    return Promise.resolve(window.AndroidForms.setTitle(data.title));
-  },
+  setTitle: ({ title }) => Promise.resolve(window.AndroidForms.setTitle(title)),
 
-  saveData(data) {
-    return new Promise((resolve, reject) => {
-      let timeout;
-      let saveDataOK;
-      let saveDataKO;
+  saveData: (data) =>
+    new Promise((resolve, reject) => {
+      let timeout, saveDataOK, saveDataKO;
+
       let timeoutFunc = () => {
         window.removeEventListener('saveDataOK', saveDataOK);
         window.removeEventListener('saveDataKO', saveDataKO);
@@ -169,74 +138,31 @@ const AndroidBackend = {
         endState: 1,
       };
       window.AndroidForms.saveData(JSON.stringify(data.formData));
-    });
-  },
+    }),
 
-  openDatePicker(data) {
-    return this.genericResponseCall('openDialogPicker', [
-      'openDatePicker',
-      data.date,
-      data.dateMax || '',
-      data.dateMin || '',
-    ]);
-  },
+  openDatePicker: ({ date, dateMax, dateMin }) =>
+    asyncCall('openDialogPicker', ['openDatePicker', date, dateMax || '', dateMin || '']),
 
-  openSignatureView(data) {
-    return new Promise((resolve, reject) => {
-      this.genericResponseCall('openSignatureView', ['openSignatureView', 'white'])
-        .then((res) => resolve(res))
-        .catch((err) => reject(err));
-    });
-  },
+  openSignatureView: ({ background }) =>
+    asyncCall('openSignatureView', ['openSignatureView', background || 'white']),
 
-  showCameraImages(data) {
-    return Promise.resolve(window.AndroidForms.showCameraImages());
-  },
+  showCameraImages: () => Promise.resolve(window.AndroidForms.showCameraImages()),
 
-  hideCameraImages(data) {
-    return Promise.resolve(window.AndroidForms.hideCameraImages());
-  },
+  hideCameraImages: () => Promise.resolve(window.AndroidForms.hideCameraImages()),
 
-  expandImagesView(data) {
-    return Promise.resolve(window.AndroidForms.expandImagesView());
-  },
+  expandImagesView: () => Promise.resolve(window.AndroidForms.expandImagesView()),
 
-  collapseImagesView(data) {
-    return Promise.resolve(window.AndroidForms.collapseImagesView());
-  },
+  collapseImagesView: () => Promise.resolve(window.AndroidForms.collapseImagesView()),
 
-  showLoading(data) {
-    return Promise.resolve(window.AndroidForms.showLoading());
-  },
+  showLoading: () => Promise.resolve(window.AndroidForms.showLoading()),
 
-  hideLoading(data) {
-    return Promise.resolve(window.AndroidForms.hideLoading());
-  },
+  hideLoading: () => Promise.resolve(window.AndroidForms.hideLoading()),
 
-  showAlertDialog(data) {
-    return new Promise((resolve, reject) => {
-      this.androidGenericResponseCall('showConfirmDialog', [
-        'showAlertDialogResponse',
-        data.message,
-        data.btnOk,
-      ])
-        .then((res) => resolve(res))
-        .catch((err) => reject(err));
-    });
-  },
+  showAlertDialog: ({ message, btnOk }) =>
+    asyncCall('showConfirmDialog', ['showAlertDialogResponse', message, btnOk]),
 
-  showConfirmDialog(data) {
-    return new Promise((resolve, reject) => {
-      this.androidGenericResponseCall('showConfirmDialog', [
-        'showConfirmDialogResponse',
-        data.message,
-        data.btnOkStr,
-        data.btnKOStr,
-      ])
-        .then((res) => resolve(res))
-        .catch((err) => reject(err));
-    });
-  },
+  showConfirmDialog: ({ message, btnOkStr, btnKOStr }) =>
+    asyncCall('showConfirmDialog', ['showConfirmDialogResponse', message, btnOkStr, btnKOStr]),
 };
 
 export default AndroidBackend;

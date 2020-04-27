@@ -1,46 +1,15 @@
-import { context } from './backend';
-import utils from './utils';
-import oAuth from './oAuth';
+import { formatFormInitData, formatFormStates, formatValueList } from './utils';
 import CONSTANTS from './constants/ios.js';
 
 let valuelist = [];
 
-const IosBackend = {
-  getToken(data) {
-    return localStorage.getItem(`fmFragmentToken-${data.guid}`);
-  },
-
-  getNewToken(data) {
-    return oAuth(data.guid, context.loginToken)
-      .then((res) => {
-        localStorage.setItem(`fmFragmentToken-${data.guid}`, res);
-        return res;
-      })
-      .catch((err) => console.warn(err));
-  },
-
-  getLiteral(data) {
-    return null;
-  },
-
-  getFilteredUsers(data) {
-    return null;
-  },
-
-  setDrilldown(data) {
-    return null;
-  },
-
-  getFilteredPeriodString(data) {
-    return null;
-  },
-
+export const IosBackend = {
   // FORMS
 
   getFormInitData(data) {
     return new Promise((resolve, reject) => {
       this.genericResponseCall('getInitData', null)
-        .then((res) => resolve(utils.formatFormInitData(res)))
+        .then((res) => resolve(formatFormInitData(res)))
         .catch((err) => reject(err));
     });
   },
@@ -49,7 +18,7 @@ const IosBackend = {
     return new Promise((resolve, reject) => {
       this.genericResponseCall('getTableName', { tableName: 'tblEstadosForms' })
         .then((res) => {
-          resolve(utils.formatFormStates(res));
+          resolve(formatFormStates(res));
         })
         .catch((err) => reject(err));
     });
@@ -58,6 +27,7 @@ const IosBackend = {
   getValueList(data) {
     return new Promise((resolve, reject) => {
       const tableName = data.tableName;
+
       if (!tableName) {
         reject({ error: 'No table name' });
       } else if (valuelist[tableName]) {
@@ -65,7 +35,7 @@ const IosBackend = {
       } else {
         this.genericResponseCall('getTableName', { tableName })
           .then((res) => {
-            valuelist[tableName] = utils.formatValueList(res);
+            valuelist[tableName] = formatValueList(res);
             resolve(valuelist[tableName]);
           })
           .catch((err) => reject(err));
@@ -85,14 +55,16 @@ const IosBackend = {
         data.fromEntity = data.getEntity;
       }
 
-      let eventName = `getEntity-${CONSTANTS.entity[data.getEntity]}-${CONSTANTS.entityId[
-        data.fromEntity
-      ] || CONSTANTS.entity[data.getEntity]}-${data.id}`;
+      let eventName = `getEntity-${CONSTANTS.entity[data.getEntity]}-${
+        CONSTANTS.entityId[data.fromEntity] || CONSTANTS.entity[data.getEntity]
+      }-${data.id}`;
+
       let getRelatedEntitiesByIdEvent = (event) => {
         clearTimeout(timeout);
         removeEventListener(eventName, getRelatedEntitiesByIdEvent);
         resolve(event.detail.response);
       };
+
       let timeoutFunc = () => {
         window.removeEventListener(eventName, getRelatedEntitiesByIdEvent);
         reject('getRelatedEntitiesById timeout');
@@ -100,12 +72,6 @@ const IosBackend = {
 
       window.addEventListener(eventName, getRelatedEntitiesByIdEvent);
       timeout = setTimeout(timeoutFunc, 5000);
-      console.log('getRelatedEntitiesById', {
-        idEntityItem: eventName,
-        idEntityIn: CONSTANTS.entityId[data.fromEntity] || CONSTANTS.entity[data.getEntity],
-        idEntityRecupear: +data.id,
-        idEntityOut: CONSTANTS.entity[data.getEntity],
-      });
       window.webkit.messageHandlers.getRelatedEntitiesById.postMessage({
         idEntityItem: eventName,
         idEntityIn: CONSTANTS.entityId[data.fromEntity] || CONSTANTS.entity[data.getEntity],
@@ -119,7 +85,7 @@ const IosBackend = {
     return new Promise((resolve, reject) => {
       this.genericResponseCall('getFilteredForms', {
         fieldName: '',
-        formValue: idTipoForm,
+        formValue: data.idTipoForm,
       })
         .then((res) => resolve(res))
         .catch((err) => reject(err));
@@ -136,9 +102,8 @@ const IosBackend = {
 
   saveData(data) {
     return new Promise((resolve, reject) => {
-      let timeout;
-      let saveDataOK;
-      let saveDataKO;
+      let timeout, saveDataOK, saveDataKO;
+
       let timeoutFunc = () => {
         window.removeEventListener('saveDataOK', saveDataOK);
         window.removeEventListener('saveDataKO', saveDataKO);
