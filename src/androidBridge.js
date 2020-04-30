@@ -133,10 +133,6 @@ const AndroidBackend = {
       window.addEventListener('saveDataOK', saveDataOK);
       window.addEventListener('saveDataKO', saveDataKO);
       timeout = setTimeout(timeoutFunc, 3000);
-      data.formData = {
-        ...data.formData,
-        endState: 1,
-      };
       window.AndroidForms.saveData(JSON.stringify(data.formData));
     }),
 
