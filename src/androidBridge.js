@@ -37,16 +37,16 @@ const AndroidBackend = {
 
   getFormStates: () => syncCall('getTableName', ['tblEstadosForms'], formatFormStates),
 
-  getValueList: (data) => {
+  getValueList: ({ tableName }) => {
     return new Promise((resolve, reject) => {
-      if (valuelist[data.tableName]) {
-        resolve(valuelist[data.tableName]);
+      if (valuelist[tableName]) {
+        resolve(valuelist[tableName]);
       } else {
         try {
-          const table = JSON.parse(window.AndroidForms.getTableName(data.tableName));
+          const table = JSON.parse(window.AndroidForms.getTableName(tableName));
 
-          valuelist[data.tableName] = formatValueList(table);
-          resolve(valuelist[data.tableName]);
+          valuelist[tableName] = formatValueList(table);
+          resolve(valuelist[tableName]);
         } catch (err) {
           reject(err);
         }
@@ -56,17 +56,17 @@ const AndroidBackend = {
 
   getUsers: () => this.getRelatedEntity({ fromEntity: 'users', id: -1, getEntity: 'users' }),
 
-  getRelatedEntity: (data) =>
+  getRelatedEntity: ({ id, fromEntity, getEntity }) =>
     new Promise((resolve, reject) => {
       let timeout;
 
-      if (!data.fromEntity) {
-        data.fromEntity = data.getEntity;
+      if (!fromEntity) {
+        fromEntity = getEntity;
       }
 
-      const eventName = `getEntity-${CONSTANTS.entity[data.getEntity]}-${
-        CONSTANTS.entityId[data.fromEntity] || CONSTANTS.entity[data.getEntity]
-      }-${data.id}`;
+      const eventName = `getEntity-${CONSTANTS.entity[getEntity]}-${
+        CONSTANTS.entityId[fromEntity] || CONSTANTS.entity[getEntity]
+      }-${id}`;
 
       let getRelatedEntitiesByIdEvent = (event) => {
         removeEventListener(eventName, getRelatedEntitiesByIdEvent);
@@ -87,15 +87,15 @@ const AndroidBackend = {
       timeout = setTimeout(timeoutFunc, 5000);
       window.AndroidForms.getRelatedEntitiesById(
         eventName,
-        CONSTANTS.entityId[data.fromEntity] || CONSTANTS.entity[data.getEntity],
-        data.id,
-        CONSTANTS.entity[data.getEntity],
+        CONSTANTS.entityId[fromEntity] || CONSTANTS.entity[getEntity],
+        id,
+        CONSTANTS.entity[getEntity],
       );
     }),
 
-  getFormType: (data) =>
+  getFormType: ({ idTipoForm }) =>
     new Promise((resolve, reject) => {
-      const res = window.AndroidForms.getFilteredForms('', data.idTipoForm);
+      const res = window.AndroidForms.getFilteredForms('', idTipoForm);
 
       try {
         resolve(formatFormType(JSON.parse(res)));
@@ -108,7 +108,7 @@ const AndroidBackend = {
 
   setTitle: ({ title }) => Promise.resolve(window.AndroidForms.setTitle(title)),
 
-  saveData: (data) =>
+  saveData: ({ formData }) =>
     new Promise((resolve, reject) => {
       let timeout, saveDataOK, saveDataKO;
 
@@ -118,13 +118,13 @@ const AndroidBackend = {
         reject('saveData timeout');
       };
 
-      saveDataOK = (event) => {
+      saveDataOK = () => {
         window.removeEventListener('saveDataOK', saveDataOK);
         window.removeEventListener('saveDataKO', saveDataKO);
         clearTimeout(timeout);
         resolve();
       };
-      saveDataKO = (event) => {
+      saveDataKO = () => {
         window.removeEventListener('saveDataOK', saveDataOK);
         window.removeEventListener('saveDataKO', saveDataKO);
         clearTimeout(timeout);
@@ -133,7 +133,7 @@ const AndroidBackend = {
       window.addEventListener('saveDataOK', saveDataOK);
       window.addEventListener('saveDataKO', saveDataKO);
       timeout = setTimeout(timeoutFunc, 3000);
-      window.AndroidForms.saveData(JSON.stringify(data.formData));
+      window.AndroidForms.saveData(JSON.stringify(formData));
     }),
 
   openDatePicker: ({ date, dateMax, dateMin }) =>

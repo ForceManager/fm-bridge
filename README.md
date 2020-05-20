@@ -25,13 +25,17 @@ npm install fm-bridge
 ### As a script.
 
 ```html
-<script type="text/javascript" src="https://d15abo3q1yyhdy.cloudfront.net/fragments/fm-bridge.min.js"></script>;
+<script
+  type="text/javascript"
+  src="https://d15abo3q1yyhdy.cloudfront.net/fragments/fm-bridge.min.js"
+></script>
+;
 ```
 
 ## ⭐️ Features
 
--   Axios instance configured to make calls to ForceManager API.
--   Set of functions to get data from ForceManager App.
+- Axios instance configured to make calls to ForceManager API.
+- Function getContext to get the context (user, account, etc.).
 
 ## Usage
 
@@ -42,12 +46,13 @@ In the following example we can see how to get the ID of the current account usi
 ```js
 import { bridge, axios } from 'fm-bridge';
 
- bridge.getEntityId()
-  .then(res => axios.get(`/accounts/${res.data.toString()}`))
-  .then(res => {
-    console.log('Account details:', res.data);
+bridge
+  .getContext()
+  .then(({ data }) => axios.get(`/accounts/${data.entity.id.toString()}`))
+  .then(({ data }) => {
+    console.log('Account details:', data);
   })
-  .catch(err => {
+  .catch((err) => {
     console.warn(err);
   });
 ```
@@ -55,32 +60,22 @@ import { bridge, axios } from 'fm-bridge';
 ### Example importing the package as script.
 
 ```html
-<script type="text/javascript" src="https://d15abo3q1yyhdy.cloudfront.net/fragments/fm-bridge.min.js"></script>;
+<script
+  type="text/javascript"
+  src="https://d15abo3q1yyhdy.cloudfront.net/fragments/fm-bridge.min.js"
+></script>
+;
 
 <script>
- fmBridge.bridge.getEntityId()
-  .then(function(res) {
-    return fmBridge.axios.get(`/accounts/${res.data.toString()}`)
-  })
-  .then(function(res) {
-    console.log('Account details:', res.data);
-  })
-  .catch(function(err) {
-    console.warn(err);
-  });
+  fmBridge.bridge.getContext()
+   .then(function(res) {
+     return fmBridge.axios.get(`/accounts/${res.data.entity.id.toString()}`)
+   })
+   .then(function((res)) {
+     console.log('Account details:', res.data);
+   })
+   .catch(function(err) {
+     console.warn(err);
+   });
 </script>
 ```
-
-## Functions
-
-* getEntityId()
-  Reruns the entity ID of the current entity (Account or Opportunity) as integer.
-
-* getLiteral(key)
-  Needs one argument 'key' and returns the literal for this key.
-
-* getUserData()
-  Retuns an object with all the user data like: id, name, email, locale, currency, etc.).
-
-* getPermissions()
-  Retuns an object with all the permissions.

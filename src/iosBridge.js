@@ -3,61 +3,84 @@ import CONSTANTS from './constants/ios.js';
 
 let valuelist = [];
 
+function genericCall(id, params) {
+  return new Promise((resolve) => {
+    resolve();
+    window.webkit.messageHandlers[id].postMessage(params || id);
+  });
+}
+
+function genericResponseCall(id, params, timeout) {
+  return new Promise((resolve, reject) => {
+    const eventFunc = (event) => {
+      clearTimeout(timeout);
+      window.removeEventListener(id, eventFunc);
+      resolve(event.detail.response);
+    };
+    const timeoutFunc = () => {
+      window.removeEventListener(id, eventFunc);
+      reject({ error: `${id} timeout` });
+    };
+
+    window.addEventListener(id, eventFunc);
+    timeout = timeout && setTimeout(timeoutFunc, 3000);
+    window.webkit.messageHandlers[id].postMessage(params || id);
+  });
+}
+
 export const IosBackend = {
-  // FORMS
+  getFormInitData: () => genericResponseCall('getInitData', null).then(formatFormInitData),
 
-  getFormInitData(data) {
-    return new Promise((resolve, reject) => {
-      this.genericResponseCall('getInitData', null)
-        .then((res) => resolve(formatFormInitData(res)))
-        .catch((err) => reject(err));
-    });
-  },
+  getFormStates: () =>
+    genericResponseCall('getTableName', { tableName: 'tblEstadosForms' }).then(formatFormStates),
 
-  getFormStates(data) {
-    return new Promise((resolve, reject) => {
-      this.genericResponseCall('getTableName', { tableName: 'tblEstadosForms' })
-        .then((res) => {
-          resolve(formatFormStates(res));
-        })
-        .catch((err) => reject(err));
-    });
-  },
-
-  getValueList(data) {
-    return new Promise((resolve, reject) => {
-      const tableName = data.tableName;
-
+  getValueList: ({ tableName }) =>
+    new Promise((resolve, reject) => {
       if (!tableName) {
         reject({ error: 'No table name' });
       } else if (valuelist[tableName]) {
         resolve(valuelist[tableName]);
       } else {
-        this.genericResponseCall('getTableName', { tableName })
-          .then((res) => {
-            valuelist[tableName] = formatValueList(res);
+        // genericResponseCall('getTableName', { tableName })
+        //   .then((res) => {
+        //     valuelist[tableName] = formatValueList(res);
+        //     resolve(valuelist[tableName]);
+        //   })
+        //   .catch((err) => reject(err));
+        // TODO eliminar ñapa de abajo y volver al código de arriba
+        // cuando iOS haga el fix para devolver listas con eventos con distinto nombre.
+        const eventFunc = (event) => {
+          valuelist[event.detail.response.table] = formatValueList(event.detail.response);
+          if (tableName === event.detail.response.table) {
             resolve(valuelist[tableName]);
-          })
-          .catch((err) => reject(err));
+          } else {
+            let interval = setInterval(() => {
+              if (valuelist[tableName]) {
+                clearInterval(interval);
+                resolve(valuelist[tableName]);
+              }
+            }, 500);
+          }
+        };
+
+        window.addEventListener('getTableName', eventFunc);
+        window.webkit.messageHandlers.getTableName.postMessage({ tableName });
       }
-    });
-  },
+    }),
 
-  getUsers(data) {
-    return this.getRelatedEntity({ fromEntity: 'users', id: -1, getEntity: 'users' });
-  },
+  getUsers: () => this.getRelatedEntity({ fromEntity: 'users', id: -1, getEntity: 'users' }),
 
-  getRelatedEntity(data) {
-    return new Promise((resolve, reject) => {
+  getRelatedEntity: ({ id, fromEntity, getEntity }) =>
+    new Promise((resolve, reject) => {
       let timeout;
 
-      if (!data.fromEntity) {
-        data.fromEntity = data.getEntity;
+      if (!fromEntity) {
+        fromEntity = getEntity;
       }
 
-      let eventName = `getEntity-${CONSTANTS.entity[data.getEntity]}-${
-        CONSTANTS.entityId[data.fromEntity] || CONSTANTS.entity[data.getEntity]
-      }-${data.id}`;
+      let eventName = `getEntity-${CONSTANTS.entity[getEntity]}-${
+        CONSTANTS.entityId[fromEntity] || CONSTANTS.entity[getEntity]
+      }-${id}`;
 
       let getRelatedEntitiesByIdEvent = (event) => {
         clearTimeout(timeout);
@@ -74,34 +97,33 @@ export const IosBackend = {
       timeout = setTimeout(timeoutFunc, 5000);
       window.webkit.messageHandlers.getRelatedEntitiesById.postMessage({
         idEntityItem: eventName,
-        idEntityIn: CONSTANTS.entityId[data.fromEntity] || CONSTANTS.entity[data.getEntity],
-        idEntityRecupear: +data.id,
-        idEntityOut: CONSTANTS.entity[data.getEntity],
+        idEntityIn: CONSTANTS.entityId[fromEntity] || CONSTANTS.entity[getEntity],
+        idEntityRecupear: parseInt(id, 10),
+        idEntityOut: CONSTANTS.entity[getEntity],
       });
-    });
-  },
+    }),
 
-  getFormType(data) {
+  getFormType: ({ idTipoForm }) => {
     return new Promise((resolve, reject) => {
-      this.genericResponseCall('getFilteredForms', {
+      genericResponseCall('getFilteredForms', {
         fieldName: '',
-        formValue: data.idTipoForm,
+        formValue: idTipoForm,
       })
         .then((res) => resolve(res))
         .catch((err) => reject(err));
     });
   },
 
-  finishActivity(data) {
-    return this.genericCall('finishActivity', null);
+  finishActivity() {
+    return genericCall('finishActivity', null);
   },
 
-  setTitle(data) {
-    return this.genericCall('setTitle', { title: data.title });
+  setTitle: ({ title }) => {
+    return genericCall('setTitle', title);
   },
 
-  saveData(data) {
-    return new Promise((resolve, reject) => {
+  saveData: ({ formData }) =>
+    new Promise((resolve, reject) => {
       let timeout, saveDataOK, saveDataKO;
 
       let timeoutFunc = () => {
@@ -110,13 +132,13 @@ export const IosBackend = {
         reject('saveData timeout');
       };
 
-      saveDataOK = (event) => {
+      saveDataOK = () => {
         clearTimeout(timeout);
         window.removeEventListener('saveDataOK', saveDataOK);
         window.removeEventListener('saveDataKO', saveDataKO);
         resolve();
       };
-      saveDataKO = (event) => {
+      saveDataKO = () => {
         clearTimeout(timeout);
         window.removeEventListener('saveDataOK', saveDataOK);
         window.removeEventListener('saveDataKO', saveDataKO);
@@ -126,108 +148,66 @@ export const IosBackend = {
       window.addEventListener('saveDataKO', saveDataKO);
       timeout = setTimeout(timeoutFunc, 5000);
       window.webkit.messageHandlers.saveData.postMessage({
-        objectToSave: JSON.stringify(data.formData),
+        objectToSave: JSON.stringify(formData),
       });
-    });
-  },
+    }),
 
-  openDatePicker(data) {
-    return this.genericResponseCall(
+  openDatePicker: ({ date, dateMax, dateMin }) =>
+    genericResponseCall(
       'openDialogPicker',
       {
         idDialogPicker: 'openDatePicker',
-        millisActual: data.date,
-        millisMaxDate: data.dateMax || '',
-        millisMinDate: data.dateMin || '',
+        millisActual: date,
+        millisMaxDate: dateMax || '',
+        millisMinDate: dateMin || '',
       },
       false,
-    );
-  },
+    ),
 
-  openSignatureView(data) {
-    return this.genericResponseCall(
+  openSignatureView: ({ background }) =>
+    genericResponseCall(
       'openSignatureView',
       {
         idSignature: 'openSignatureView',
-        background: data.background || 'white',
+        background: background || 'white',
       },
       false,
-    );
-  },
+    ),
 
-  showCameraImages(data) {
-    return this.genericCall('showCameraImages', null);
-  },
+  showCameraImages: () => genericCall('showCameraImages', null),
 
-  hideCameraImages(data) {
-    return this.genericCall('hideCameraImages', null);
-  },
+  hideCameraImages: () => genericCall('hideCameraImages', null),
 
-  expandImagesView(data) {
-    return this.genericCall('expandImagesView', null);
-  },
+  expandImagesView: () => genericCall('expandImagesView', null),
 
-  collapseImagesView(data) {
-    return this.genericCall('collapseImagesView', null);
-  },
+  collapseImagesView: () => genericCall('collapseImagesView', null),
 
-  showLoading(data) {
-    return this.genericCall('showLoading', null);
-  },
+  showLoading: () => genericCall('showLoading', null),
 
-  hideLoading(data) {
-    return this.genericCall('hideLoading', null);
-  },
+  hideLoading: () => genericCall('hideLoading', null),
 
-  showAlertDialog(data) {
-    return this.genericResponseCall(
+  showAlertDialog: ({ id, message, btnOk }) =>
+    genericResponseCall(
       'showAlertDialog',
       {
-        idAlertDialog: data.id,
-        messageAlert: data.message,
-        buttonAcceptTextAlert: data.btnOk,
+        idAlertDialog: id,
+        messageAlert: message,
+        buttonAcceptTextAlert: btnOk,
       },
       false,
-    );
-  },
+    ),
 
-  showConfirmDialog(data) {
-    return this.genericResponseCall(
+  showConfirmDialog: ({ id, message, btnOkStr, btnKOStr }) =>
+    genericResponseCall(
       'showConfirmDialog',
       {
-        idConfirmDialog: data.id,
-        messageConfirm: data.message,
-        buttonAcceptText: data.btnOkStr,
-        buttonCancelText: data.btnKOStr,
+        idConfirmDialog: id,
+        messageConfirm: message,
+        buttonAcceptText: btnOkStr,
+        buttonCancelText: btnKOStr,
       },
       false,
-    );
-  },
-
-  genericCall(id, params) {
-    return new Promise((resolve) => {
-      resolve();
-      window.webkit.messageHandlers[id].postMessage(params || id);
-    });
-  },
-
-  genericResponseCall(id, params, timeout) {
-    return new Promise((resolve, reject) => {
-      const eventFunc = (event) => {
-        clearTimeout(timeout);
-        window.removeEventListener(id, eventFunc);
-        resolve(event.detail.response);
-      };
-      const timeoutFunc = () => {
-        window.removeEventListener(id, eventFunc);
-        reject({ error: `${id} timeout` });
-      };
-
-      window.addEventListener(id, eventFunc);
-      timeout = timeout && setTimeout(timeoutFunc, 3000);
-      window.webkit.messageHandlers[id].postMessage(params || id);
-    });
-  },
+    ),
 };
 
 export default IosBackend;
