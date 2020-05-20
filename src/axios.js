@@ -1,6 +1,8 @@
 import Axios from 'axios';
 import bridge from './bridge';
 
+const guid = window.name;
+
 let ready = false;
 
 const instance = Axios.create({
@@ -21,20 +23,20 @@ function setConfig(config) {
   return new Promise((resolve, reject) => {
     if (!ready) {
       bridge
-        .getToken()
+        .getToken(guid)
         .then((res) => {
           if (res) {
             return Promise.resolve(res);
           }
-          return bridge.getNewToken();
+          return bridge.getNewToken(guid);
         })
-        .then((res) => {
-          config.headers['Authorization'] = `Bearer ${res}`;
-          instance.defaults.headers['Authorization'] = `Bearer ${res}`;
+        .then((token) => {
+          config.headers['Authorization'] = `Bearer ${token}`;
+          instance.defaults.headers['Authorization'] = `Bearer ${token}`;
           ready = true;
           resolve(config);
         })
-        .catch((err) => reject(err));
+        .catch(reject);
     } else {
       resolve(config);
     }
@@ -59,12 +61,15 @@ instance.interceptors.response.use(
     const originalRequest = config;
 
     if (response && response.status === 401 && response.data && response.data.code === '2') {
-      const retryOriginalRequest = new Promise((resolve) => {
-        bridge.getNewToken((res) => {
-          originalRequest.headers['Authorization'] = `Bearer ${res}`;
-          instance.defaults.headers['Authorization'] = `Bearer ${res}`;
-          resolve(Axios(originalRequest));
-        });
+      const retryOriginalRequest = new Promise((resolve, reject) => {
+        bridge
+          .getNewToken(guid)
+          .then((token) => {
+            originalRequest.headers['Authorization'] = `Bearer ${token}`;
+            instance.defaults.headers['Authorization'] = `Bearer ${token}`;
+            resolve(Axios(originalRequest));
+          })
+          .catch(reject);
       });
 
       return retryOriginalRequest;
