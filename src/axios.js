@@ -60,7 +60,12 @@ instance.interceptors.response.use(
     const { config, response } = error;
     const originalRequest = config;
 
-    if (response && response.status === 401 && response.data && response.data.code === '2') {
+    if (
+      response &&
+      response.status === 401 &&
+      response.data &&
+      (response.data.code === '2' || response.data === 'Token is expired')
+    ) {
       const retryOriginalRequest = new Promise((resolve, reject) => {
         bridge
           .getNewToken(guid)
